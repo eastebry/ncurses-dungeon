@@ -18,12 +18,16 @@ void rotateRight(struct Player *player){
 
 }
 
-void walk(struct Player *player, int direction){
-  player->x += cos(player->direction) * direction;
-  player->y += sin(player->direction) * direction;
+void walk(struct Player *player, double distance, int direction){
+  player->x += cos(player->direction) * direction * distance;
+  player->y += sin(player->direction) * direction * distance;
 }
 
-void rotate(struct Player *player, int direction){
+void rotate(struct Player *player, double radians, int direction){
   // for now we are just rotating at 90 degree angles
-  player->direction += (M_PI/2.0) * direction;
+  double deltaDir = radians * direction;
+  player->direction += deltaDir;
+  double oldPlaneX = player->cameraPlaneX;
+  player->cameraPlaneX = player->cameraPlaneX * cos(deltaDir) - player->cameraPlaneY * sin(deltaDir);
+  player->cameraPlaneY = oldPlaneX * sin(deltaDir) + player->cameraPlaneY * cos(deltaDir);
 }

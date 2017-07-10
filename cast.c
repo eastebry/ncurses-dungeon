@@ -148,42 +148,68 @@ void update(struct Player *player, struct Map *map, int w, int h){
     refresh();
 }
 
+void walkAnimation(struct Player *player, struct Map *map, double distance, double direction){
+  const struct timespec delay = {0, 90000000L};
+  double moveSpeed = .1;
+  double finalX = cos(player->direction) * distance * direction;
+  double finalY = sin(player->direction) * distance * direction;
+  for (double i = 0; i < 10/*distance/moveSpeed*/; i+=1){
+    walk(player, moveSpeed, direction);
+    update(player, map, 200, 60);
+    nanosleep(&delay, NULL);
+}
+  player->x = finalX;
+  player->y = finalY;
+}
+
+void rotationAnimation(struct Player *player, struct Map *map, double radians, int direction){
+  double moveSpeed = 0.1;
+  const struct timespec delay = {0, 90000000L};
+  double finalDirection = player->direction + (radians * direction);
+  for (double i=0; i < fabs(radians/moveSpeed); i+=1){
+    rotate(player, moveSpeed, direction);
+    // TODO -factor this call to update out somehow
+    update(player, map, 200, 60);
+    nanosleep(&delay, NULL);
+  }
+  player->direction = finalDirection;
+}
+
 int main(){
 
   initscr();
   cbreak();
   noecho();
-  nodelay(stdscr, TRUE);
+  //nodelay(stdscr, TRUE);
   curs_set(FALSE);
-  const struct timespec delay = {0, 90000000L};
 
   struct Map map = {10, &map1};
   struct Player player = {5, 5, 0, 0, 0.66};
+  update(&player, &map, 200, 60);
 
   while (1){
-    //rotateRight(&player);
-    update(&player, &map, 200, 60);
     char input = getch();
     switch(input) {
       case KEY_UP:
       case 'w':
-        walk(&player, PLAYER_FORWARDS);
+        walkAnimation(&player, &map, 1, PLAYER_FORWARDS);
         break;
       case KEY_DOWN:
       case 's':
-        walk(&player, PLAYER_BACKWARDS);
+        walkAnimation(&player, &map, 1, PLAYER_BACKWARDS);
         break;
       case KEY_LEFT:
       case 'a':
-        rotate(&player, PLAYER_COUNTER_CLOCKWISE);
+        rotationAnimation(&player, &map, M_PI/2.0, PLAYER_COUNTER_CLOCKWISE);
         break;
       case KEY_RIGHT:
       case 'd':
-        rotate(&player, PLAYER_CLOCKWISE);
+        rotationAnimation(&player, &map, M_PI/2.0, PLAYER_CLOCKWISE);
+        break;
       default:
         break;
     }
-    nanosleep(&delay, NULL);
+    update(&player, &map, 200, 60);
   }
 
   endwin();

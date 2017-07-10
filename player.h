@@ -3,8 +3,8 @@
 
 #define PLAYER_FORWARDS 1
 #define PLAYER_BACKWARDS -1
-#define PLAYER_CLOCKWISE -1
-#define PLAYER_COUNTER_CLOCKWISE 1
+#define PLAYER_CLOCKWISE 1
+#define PLAYER_COUNTER_CLOCKWISE -1
 
 struct Player {
   double x;
@@ -14,7 +14,7 @@ struct Player {
   double cameraPlaneY;
 };
 
-void walk(struct Player *player, int direction);
-void rotate(struct Player *player, int direction);
+void walk(struct Player *player, double distance, int direction);
+void rotate(struct Player *player, double radians, int direction);
 
 #endif
