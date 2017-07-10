@@ -2,7 +2,9 @@
 #include "player.h"
 
 void rotateRight(struct Player *player){
+
   /*
+  This code rotates in intermediate directions
   double rotSpeed = .005;
   double oldDirX = player->directionX;
   player->directionX = player->directionX * cos(-rotSpeed) - player->directionY * sin(-rotSpeed);
@@ -11,14 +13,17 @@ void rotateRight(struct Player *player){
   player->cameraPlaneX = player->cameraPlaneX * cos(-rotSpeed) - player->cameraPlaneY * sin(-rotSpeed);
   player->cameraPlaneY = oldPlaneX * sin(-rotSpeed) + player->cameraPlaneY * cos(-rotSpeed);
   */
+
+  // for now just rotate 90 degress
+
 }
 
-void walkForward(struct Player *player){
-  player->x = player->x + (player->directionX);
-  player->y = player->y + (player->directionY);
+void walk(struct Player *player, int direction){
+  player->x += cos(player->direction) * direction;
+  player->y += sin(player->direction) * direction;
 }
 
-void walkBackwards(struct Player *player){
-  player->x = player->x - (player->directionX);
-  player->y = player->y - (player->directionY);
+void rotate(struct Player *player, int direction){
+  // for now we are just rotating at 90 degree angles
+  player->direction += (M_PI/2.0) * direction;
 }

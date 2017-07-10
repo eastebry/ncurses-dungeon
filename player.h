@@ -1,17 +1,20 @@
 #ifndef PLAYER_H_   /* Include guard */
 #define PLAYER_H_
 
+#define PLAYER_FORWARDS 1
+#define PLAYER_BACKWARDS -1
+#define PLAYER_CLOCKWISE -1
+#define PLAYER_COUNTER_CLOCKWISE 1
+
 struct Player {
   double x;
   double y;
-  double directionX;
-  double directionY;
+  double direction;
   double cameraPlaneX;
   double cameraPlaneY;
 };
 
-void walkForward(struct Player *player);
-
-void walkBackwards(struct Player *player);
+void walk(struct Player *player, int direction);
+void rotate(struct Player *player, int direction);
 
 #endif

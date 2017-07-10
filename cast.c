@@ -48,8 +48,8 @@ void raycast(struct Player *player, struct Map *map, int width, int height){
       double cameraX = 2 * x / ((double) (width)) - 1; //x-coordinate in camera space
       double rayPosX = player->x;
       double rayPosY = player->y;
-      double rayDirX = player->directionX + player->cameraPlaneX * cameraX;
-      double rayDirY = player->directionY + player->cameraPlaneY * cameraX;
+      double rayDirX = cos(player->direction) + player->cameraPlaneX * cameraX;
+      double rayDirY = sin(player->direction) + player->cameraPlaneY * cameraX;
 
       int mapX = (int) rayPosX;
       int mapY = (int) rayPosY;
@@ -122,20 +122,29 @@ void raycast(struct Player *player, struct Map *map, int width, int height){
    }
  }
 
-void drawMiniMap(struct Map *map, int playerX, int playerY){
+void drawMiniMap(struct Player *player, struct Map *map){
   int offset = 250;
   for (int i = 0; i < map->size; i++){
     for (int j = 0; j < map->size; j++){
       mvaddch(j, i + offset, getPositionInMap(j,i, map));
     }
   }
-  mvaddch(playerY, playerX + offset, 'P');
+  mvaddch(player->y, player->x + offset, 'P');
+  char str1[80];
+  sprintf(str1, "X: %f", player->x);
+  mvprintw(10, offset, &str1);
+  char str2[80];
+  sprintf(str2, "Y: %f", player->y);
+  mvprintw(15, offset, &str2);
+  char str3[80];
+  sprintf(str3, "Direction: %f", player->direction);
+  mvprintw(20, offset, &str3);
 }
 
 void update(struct Player *player, struct Map *map, int w, int h){
     clear();
     raycast(player, map, w, h);
-    drawMiniMap(map, player->x, player->y);
+    drawMiniMap(player, map);
     refresh();
 }
 
@@ -148,8 +157,8 @@ int main(){
   curs_set(FALSE);
   const struct timespec delay = {0, 90000000L};
 
-  struct Player player = {5, 5, -1, 0, 0, 0.66};
   struct Map map = {10, &map1};
+  struct Player player = {5, 5, 0, 0, 0.66};
 
   while (1){
     //rotateRight(&player);
@@ -158,12 +167,19 @@ int main(){
     switch(input) {
       case KEY_UP:
       case 'w':
-        walkForward(&player);
+        walk(&player, PLAYER_FORWARDS);
         break;
       case KEY_DOWN:
       case 's':
-        walkBackwards(&player);
+        walk(&player, PLAYER_BACKWARDS);
         break;
+      case KEY_LEFT:
+      case 'a':
+        rotate(&player, PLAYER_COUNTER_CLOCKWISE);
+        break;
+      case KEY_RIGHT:
+      case 'd':
+        rotate(&player, PLAYER_CLOCKWISE);
       default:
         break;
     }
