@@ -155,8 +155,8 @@ void update(struct Player *player, struct Map *map, int w, int h){
 void walkAnimation(struct Player *player, struct Map *map, double distance, double direction){
   const struct timespec delay = {0, 90000000L};
   double moveSpeed = .1;
-  double finalX = floor(player-> x + cos(player->direction) * distance * direction);
-  double finalY = floor(player-> y + sin(player->direction) * distance * direction);
+  double finalX = player-> x + cos(player->direction) * distance * direction;
+  double finalY = player-> y + sin(player->direction) * distance * direction;
   for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
     walk(player, moveSpeed, direction);
     update(player, map, 200, 60);
