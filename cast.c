@@ -59,69 +59,69 @@ void raycast(struct Player *player, struct Map *map, int width, int height){
     double sideDistX;
     double sideDistY;
 
-      //length of ray from one x or y-side to next x or y-side
-      double deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
-      double deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY));
-      double perpWallDist;
+    //length of ray from one x or y-side to next x or y-side
+    double deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
+    double deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY));
+    double perpWallDist;
 
-      //what direction to step in x or y-direction (either +1 or -1)
-      int stepX;
-      int stepY;
+    //what direction to step in x or y-direction (either +1 or -1)
+    int stepX;
+    int stepY;
 
-      char wall = ' '  ;// the character in the map to draw the wall
-      int hit = false; //was there a wall hit?
-      bool outside = false; // are we outside the map?
-      int side; //was a NS or a EW wall hit?
+    char wall = ' '  ;// the character in the map to draw the wall
+    int hit = false; //was there a wall hit?
+    bool outside = false; // are we outside the map?
+    int side; //was a NS or a EW wall hit?
 
-      //calculate step and initial sideDist
-      if (rayDirX < 0) {
-       stepX = -1;
-       sideDistX = (rayPosX - mapX) * deltaDistX;
+    //calculate step and initial sideDist
+    if (rayDirX < 0) {
+      stepX = -1;
+      sideDistX = (rayPosX - mapX) * deltaDistX;
+    }
+    else {
+      stepX = 1;
+      sideDistX = (mapX + 1.0 - rayPosX) * deltaDistX;
+    }
+    if (rayDirY < 0) {
+      stepY = -1;
+      sideDistY = (rayPosY - mapY) * deltaDistY;
+    }
+    else {
+      stepY = 1;
+      sideDistY = (mapY + 1.0 - rayPosY) * deltaDistY;
+    }
+    //perform DDA
+    while (!hit && !outside) {
+      //jump to next map square, OR in x-direction, OR in y-direction
+      if (sideDistX < sideDistY) {
+        sideDistX += deltaDistX;
+        mapX += stepX;
+        side = 0;
       }
       else {
-       stepX = 1;
-       sideDistX = (mapX + 1.0 - rayPosX) * deltaDistX;
+        sideDistY += deltaDistY;
+        mapY += stepY;
+        side = 1;
       }
-      if (rayDirY < 0) {
-       stepY = -1;
-       sideDistY = (rayPosY - mapY) * deltaDistY;
+      if (mapX < 0 || mapY < 0 || mapY > map->size || mapY > map->size) {
+        outside = true;
       }
-      else {
-       stepY = 1;
-       sideDistY = (mapY + 1.0 - rayPosY) * deltaDistY;
-      }
-      //perform DDA
-      while (!hit && !outside) {
-       //jump to next map square, OR in x-direction, OR in y-direction
-       if (sideDistX < sideDistY) {
-         sideDistX += deltaDistX;
-         mapX += stepX;
-         side = 0;
-       }
-       else {
-         sideDistY += deltaDistY;
-         mapY += stepY;
-         side = 1;
-       }
-       if (mapX < 0 || mapY < 0 || mapY > map->size || mapY > map->size) {
-         outside = true;
-       }
-       //Check if ray has hit a wall
-       wall = getPositionInMap(mapY, mapX, map);
-       if (wall != ' ') hit = true;
-      }
+      //Check if ray has hit a wall
+      wall = getPositionInMap(mapY, mapX, map);
+      if (wall != ' ') hit = true;
+    }
 
-      //Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
-      if (hit) {
-         if (side == 0) perpWallDist = (mapX - rayPosX + (1 - stepX) / 2) / rayDirX;
-         else           perpWallDist = (mapY - rayPosY + (1 - stepY) / 2) / rayDirY;
+    //Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
+    if (hit) {
+      if (side == 0) perpWallDist = (mapX - rayPosX + (1 - stepX) / 2) / rayDirX;
+      else           perpWallDist = (mapY - rayPosY + (1 - stepY) / 2) / rayDirY;
 
-         //Calculate height of line to draw on screen
-         int lineHeight = (int)(height / perpWallDist);
-         drawColumn(x, lineHeight, height, wall);
-     }
-   }
- }
+      //Calculate height of line to draw on screen
+      int lineHeight = (int)(height / perpWallDist);
+      drawColumn(x, lineHeight, height, wall);
+    }
+  }
+}
 
 void drawMiniMap(struct Player *player, struct Map *map){
   int offset = 250;
@@ -146,10 +146,10 @@ void drawMiniMap(struct Player *player, struct Map *map){
 }
 
 void update(struct Player *player, struct Map *map, int w, int h){
-    clear();
-    raycast(player, map, w, h);
-    drawMiniMap(player, map);
-    refresh();
+  clear();
+  raycast(player, map, w, h);
+  drawMiniMap(player, map);
+  refresh();
 }
 
 void walkAnimation(struct Player *player, struct Map *map, double distance, double direction){
@@ -161,7 +161,7 @@ void walkAnimation(struct Player *player, struct Map *map, double distance, doub
     walk(player, moveSpeed, direction);
     update(player, map, 200, 60);
     nanosleep(&delay, NULL);
-}
+  }
   player->x = finalX;
   player->y = finalY;
 }
@@ -170,6 +170,10 @@ void rotationAnimation(struct Player *player, struct Map *map, double radians, i
   double moveSpeed = 0.1;
   const struct timespec delay = {0, 90000000L};
   double finalDirection = player->direction + (radians * direction);
+  //make sure to keep the camera plane up to date. It needs to be perpendicular to the direction
+  double finalCameraX = player->cameraPlaneX * cos(radians * direction) - player->cameraPlaneY * sin(radians * direction);
+  double finalCameraY = player->cameraPlaneX * sin(radians * direction) +  player->cameraPlaneY * cos(radians * direction);
+
   for (double i=0; i < (int) floor(fabs(radians/moveSpeed)); i+=1){
     rotate(player, moveSpeed, direction);
     // TODO -factor this call to update out somehow
@@ -177,6 +181,8 @@ void rotationAnimation(struct Player *player, struct Map *map, double radians, i
     nanosleep(&delay, NULL);
   }
   player->direction = finalDirection;
+  player->cameraPlaneX = finalCameraX;
+  player->cameraPlaneY = finalCameraY;
 }
 
 int main(){
@@ -195,19 +201,19 @@ int main(){
     char input = getch();
     switch(input) {
       case 'w':
-        walkAnimation(&player, &map, 1, PLAYER_FORWARDS);
-        break;
+      walkAnimation(&player, &map, 1, PLAYER_FORWARDS);
+      break;
       case 's':
-        walkAnimation(&player, &map, 1, PLAYER_BACKWARDS);
-        break;
+      walkAnimation(&player, &map, 1, PLAYER_BACKWARDS);
+      break;
       case 'a':
-        rotationAnimation(&player, &map, M_PI/2.0, PLAYER_COUNTER_CLOCKWISE);
-        break;
+      rotationAnimation(&player, &map, M_PI/2.0, PLAYER_COUNTER_CLOCKWISE);
+      break;
       case 'd':
-        rotationAnimation(&player, &map, M_PI/2.0, PLAYER_CLOCKWISE);
-        break;
+      rotationAnimation(&player, &map, M_PI/2.0, PLAYER_CLOCKWISE);
+      break;
       default:
-        break;
+      break;
     }
     update(&player, &map, 200, 60);
   }
