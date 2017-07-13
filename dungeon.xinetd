@@ -8,5 +8,6 @@ service nibbler
     wait           = no
     user           = ctf
     server         = /home/ctf/cast
+    env            = TERM=xterm-256color LINES=60 COLUMNS=200
     type           = UNLISTED
 }

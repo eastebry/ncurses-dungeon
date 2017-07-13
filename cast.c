@@ -1,29 +1,28 @@
-/*
-http://www.playfuljs.com/a-first-person-engine-in-265-lines/
-http://tldp.org/HOWTO/NCURSES-Programming-HOWTO/keys.html
-https://www.viget.com/articles/game-programming-in-c-with-the-ncurses-library
-*/
 #include <ncurses.h>
 #include <time.h>
 #include <math.h>
 
 #include "player.h"
 
+#define WIDTH 150
+#define HEIGHT 50
 
 WINDOW* main_window;
 WINDOW* map_window;
 
+const struct timespec DELAY = {0, 90000000L};
+
 const char map1[] = ""\
-"**********"\
-"X     &  X"\
-"X        X"\
-"X   $$   X"\
-"X        X"\
-"X        X"\
-"X        X"\
-"X &      X"\
-"X     &  X"\
-"----------";
+"********************"\
+"X     *       &    X"\
+"X     *   X     *  X"\
+"X     *---------*  X"\
+"X               *& X"\
+"X------  XXXX  X*  X"\
+"X     *  X  -   * &X"\
+"X  &  *  X   &&&&  X"\
+"X  &       X       X"\
+"--------------------";
 
 struct Map {
   int size;
@@ -37,18 +36,49 @@ char getPositionInMap(int y, int x, struct Map *gamemap) {
   return gamemap->map[gamemap->size * y + x];
 }
 
+int getWallColor(char character){
+  if (character == '*')
+    return COLOR_PAIR(1);
+  if (character == 'X')
+    return COLOR_PAIR(2);
+  if (character == '-')
+    return COLOR_PAIR(3);
+  if (character == '&')
+    return COLOR_PAIR(4);
+  return COLOR_PAIR(1);
+}
+
 void drawColumn(int column, double colHeight, int screenHeight, char character){
-  for (int i = floor(screenHeight/2.0 - colHeight/2.0); i < screenHeight/2.0 + colHeight/2.0; i++){
+  int color = getWallColor(character);
+  int colTop = (int) floor(screenHeight/2.0 - colHeight/2.0);
+  int colBottom = (int) floor(screenHeight/2.0 + colHeight/2.0);
+  //draw the sky
+  // TODO clean this up
+  attron(COLOR_PAIR(6));
+  for (int i = 0; i < colTop; i++){
+    mvaddch(i, column, ' ');
+  }
+  attroff(COLOR_PAIR(6));
+  attron(color);
+  for (int i = colTop; i < screenHeight; i++){
+    if (i == colBottom) {
+      attroff(color);
+      color = COLOR_PAIR(5);
+      character = '.';
+      attron(color);
+    }
     mvaddch(i, column, character);
   }
+  attroff(color);
 }
 
 void raycast(struct Player *player, struct Map *map, int width, int height){
   for (int x = 0; x < width; x++){
     //calculate ray position and direction
     double cameraX = 2 * x / ((double) (width)) - 1; //x-coordinate in camera space
-    double rayPosX = player->x;
-    double rayPosY = player->y;
+    // cast rays from the middle of the cell
+    double rayPosX = player->x + .5;
+    double rayPosY = player->y + .5;
     double rayDirX = cos(player->direction) + player->cameraPlaneX * cameraX;
     double rayDirY = sin(player->direction) + player->cameraPlaneY * cameraX;
 
@@ -146,21 +176,23 @@ void drawMiniMap(struct Player *player, struct Map *map){
 }
 
 void update(struct Player *player, struct Map *map, int w, int h){
+  // we never call clear becayse we updae the whole screen every time
+  // supristingly this is faster.
   clear();
+  //erase();
   raycast(player, map, w, h);
-  drawMiniMap(player, map);
+  //drawMiniMap(player, map);
   refresh();
 }
 
 void walkAnimation(struct Player *player, struct Map *map, double distance, double direction){
-  const struct timespec delay = {0, 90000000L};
   double moveSpeed = .1;
   double finalX = player-> x + cos(player->direction) * distance * direction;
   double finalY = player-> y + sin(player->direction) * distance * direction;
   for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
     walk(player, moveSpeed, direction);
-    update(player, map, 200, 60);
-    nanosleep(&delay, NULL);
+    update(player, map, WIDTH, HEIGHT);
+    nanosleep(&DELAY, NULL);
   }
   player->x = finalX;
   player->y = finalY;
@@ -168,7 +200,6 @@ void walkAnimation(struct Player *player, struct Map *map, double distance, doub
 
 void rotationAnimation(struct Player *player, struct Map *map, double radians, int direction){
   double moveSpeed = 0.1;
-  const struct timespec delay = {0, 90000000L};
   double finalDirection = player->direction + (radians * direction);
   //make sure to keep the camera plane up to date. It needs to be perpendicular to the direction
   double finalCameraX = player->cameraPlaneX * cos(radians * direction) - player->cameraPlaneY * sin(radians * direction);
@@ -177,25 +208,36 @@ void rotationAnimation(struct Player *player, struct Map *map, double radians, i
   for (double i=0; i < (int) floor(fabs(radians/moveSpeed)); i+=1){
     rotate(player, moveSpeed, direction);
     // TODO -factor this call to update out somehow
-    update(player, map, 200, 60);
-    nanosleep(&delay, NULL);
+    update(player, map, WIDTH, HEIGHT);
+    nanosleep(&DELAY, NULL);
   }
   player->direction = finalDirection;
   player->cameraPlaneX = finalCameraX;
   player->cameraPlaneY = finalCameraY;
 }
 
+void initColors(){
+  init_pair(1, COLOR_RED, COLOR_RED);
+  init_pair(2, COLOR_GREEN, COLOR_GREEN);
+  init_pair(3, COLOR_YELLOW, COLOR_YELLOW);
+  init_pair(4, COLOR_CYAN, COLOR_CYAN);
+  init_pair(5, COLOR_BLUE, COLOR_BLACK);
+  init_pair(6, COLOR_BLACK, COLOR_BLACK);
+}
 int main(){
 
+  resizeterm(WIDTH, HEIGHT);
   initscr();
   cbreak();
   noecho();
   //nodelay(stdscr, TRUE);
   curs_set(FALSE);
+  start_color();
+  initColors();
 
-  struct Map map = {10, &map1};
-  struct Player player = {5, 5, 0, 0, 0.66};
-  update(&player, &map, 200, 60);
+  struct Map map = {20, &map1};
+  struct Player player = {2, 2, 0, 0, 0.66};
+  update(&player, &map, WIDTH, HEIGHT);
 
   while (1){
     char input = getch();
@@ -215,7 +257,7 @@ int main(){
       default:
       break;
     }
-    update(&player, &map, 200, 60);
+    update(&player, &map, WIDTH, HEIGHT);
   }
 
   endwin();
