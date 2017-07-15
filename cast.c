@@ -4,24 +4,49 @@
 
 #include "player.h"
 
+// Screen width and height
 #define WIDTH 150
 #define HEIGHT 50
 
-WINDOW* main_window;
-WINDOW* map_window;
+// Define the color indexes
+#define WALL_RED 1
+#define WALL_GREEN 2
+#define WALL_YELLOW 3
+#define WALL_CYAN 4
+#define FLOOR 5
+#define BLACK 6
+
+// shorthand for color pairs
+#define ATTR_ALL_BLACK COLOR_PAIR(BLACK)
+#define ATTR_WALL_RED COLOR_PAIR(WALL_RED)
+#define ATTR_WALL_GREEN COLOR_PAIR(WALL_GREEN)
+#define ATTR_WALL_YELLOW COLOR_PAIR(WALL_YELLOW)
+#define ATTR_WALL_CYAN COLOR_PAIR(WALL_CYAN)
+#define ATTR_FLOOR COLOR_PAIR(FLOOR)
 
 const struct timespec DELAY = {0, 90000000L};
 
 const char map1[] = ""\
 "********************"\
-"X     *       &    X"\
+"X             &    X"\
 "X     *   X     *  X"\
 "X     *---------*  X"\
 "X               *& X"\
 "X------  XXXX  X*  X"\
-"X     *  X  -   * &X"\
-"X  &  *  X   &&&&  X"\
-"X  &       X       X"\
+"X     *  X      *  X"\
+"X  &  *  X&&&&&&&  X"\
+"X  &               X"\
+"X  &&&&  ***  ***  X"\
+"X   &    X     &X  X"\
+"X** &  * X &&& &   X"\
+"-      *   &      XX"\
+"-   ------------FF--"\
+"X         XXX**    X"\
+"X         XXX**    X"\
+"X            ******X"\
+"X****&&&           X"\
+"X   *       &&&&&&&X"\
+"X   *    *  -      X"\
 "--------------------";
 
 struct Map {
@@ -38,32 +63,25 @@ char getPositionInMap(int y, int x, struct Map *gamemap) {
 
 int getWallColor(char character){
   if (character == '*')
-    return COLOR_PAIR(1);
+    return ATTR_WALL_RED;
   if (character == 'X')
-    return COLOR_PAIR(2);
+    return ATTR_WALL_GREEN;
   if (character == '-')
-    return COLOR_PAIR(3);
+    return ATTR_WALL_YELLOW;
   if (character == '&')
-    return COLOR_PAIR(4);
-  return COLOR_PAIR(1);
+    return ATTR_WALL_CYAN;
+  return ATTR_WALL_YELLOW;
 }
 
 void drawColumn(int column, double colHeight, int screenHeight, char character){
   int color = getWallColor(character);
   int colTop = (int) floor(screenHeight/2.0 - colHeight/2.0);
   int colBottom = (int) floor(screenHeight/2.0 + colHeight/2.0);
-  //draw the sky
-  // TODO clean this up
-  attron(COLOR_PAIR(6));
-  for (int i = 0; i < colTop; i++){
-    mvaddch(i, column, ' ');
-  }
-  attroff(COLOR_PAIR(6));
   attron(color);
   for (int i = colTop; i < screenHeight; i++){
     if (i == colBottom) {
       attroff(color);
-      color = COLOR_PAIR(5);
+      color = ATTR_FLOOR;
       character = '.';
       attron(color);
     }
@@ -98,7 +116,7 @@ void raycast(struct Player *player, struct Map *map, int width, int height){
     int stepX;
     int stepY;
 
-    char wall = ' '  ;// the character in the map to draw the wall
+    char wall = ' '; // the character in the map to draw the wall
     int hit = false; //was there a wall hit?
     bool outside = false; // are we outside the map?
     int side; //was a NS or a EW wall hit?
@@ -154,34 +172,30 @@ void raycast(struct Player *player, struct Map *map, int width, int height){
 }
 
 void drawMiniMap(struct Player *player, struct Map *map){
-  int offset = 250;
+  int offset = 150;
   for (int i = 0; i < map->size; i++){
     for (int j = 0; j < map->size; j++){
       mvaddch(j, i + offset, getPositionInMap(j,i, map));
     }
   }
-  mvaddch(player->y, player->x + offset, 'P');
+  mvaddch((int)floor(player->y), ((int) floor(player->x)) + offset, 'P');
   char str1[80];
-  sprintf(str1, "X: %f", player->x);
-  mvprintw(10, offset, &str1);
+  sprintf(str1, "X: %9.7f", player->x);
+  mvprintw(25, offset, &str1);
   char str2[80];
-  sprintf(str2, "Y: %f", player->y);
-  mvprintw(15, offset, &str2);
+  sprintf(str2, "Y: %9.7f", player->y);
+  mvprintw(26, offset, &str2);
   char str3[80];
-  sprintf(str3, "Direction: %f", player->direction);
-  mvprintw(20, offset, &str3);
-  char str4[80];
-  sprintf(str4, "Time: %d", (int)time(NULL));
-  mvprintw(30, offset, &str4);
+  sprintf(str3, "Direction: %9.7f", player->direction);
+  mvprintw(27, offset, &str3);
 }
 
+
 void update(struct Player *player, struct Map *map, int w, int h){
-  // we never call clear becayse we updae the whole screen every time
-  // supristingly this is faster.
   clear();
   //erase();
   raycast(player, map, w, h);
-  //drawMiniMap(player, map);
+  drawMiniMap(player, map);
   refresh();
 }
 
@@ -189,6 +203,8 @@ void walkAnimation(struct Player *player, struct Map *map, double distance, doub
   double moveSpeed = .1;
   double finalX = player-> x + cos(player->direction) * distance * direction;
   double finalY = player-> y + sin(player->direction) * distance * direction;
+  if (getPositionInMap((int) floor(finalY), (int) floor(finalX), map) != ' ')
+    return;
   for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
     walk(player, moveSpeed, direction);
     update(player, map, WIDTH, HEIGHT);
@@ -199,7 +215,7 @@ void walkAnimation(struct Player *player, struct Map *map, double distance, doub
 }
 
 void rotationAnimation(struct Player *player, struct Map *map, double radians, int direction){
-  double moveSpeed = 0.1;
+  double moveSpeed = 0.15;
   double finalDirection = player->direction + (radians * direction);
   //make sure to keep the camera plane up to date. It needs to be perpendicular to the direction
   double finalCameraX = player->cameraPlaneX * cos(radians * direction) - player->cameraPlaneY * sin(radians * direction);
@@ -217,12 +233,12 @@ void rotationAnimation(struct Player *player, struct Map *map, double radians, i
 }
 
 void initColors(){
-  init_pair(1, COLOR_RED, COLOR_RED);
-  init_pair(2, COLOR_GREEN, COLOR_GREEN);
-  init_pair(3, COLOR_YELLOW, COLOR_YELLOW);
-  init_pair(4, COLOR_CYAN, COLOR_CYAN);
-  init_pair(5, COLOR_BLUE, COLOR_BLACK);
-  init_pair(6, COLOR_BLACK, COLOR_BLACK);
+  init_pair(WALL_RED, COLOR_RED, COLOR_RED);
+  init_pair(WALL_GREEN, COLOR_GREEN, COLOR_GREEN);
+  init_pair(WALL_YELLOW, COLOR_YELLOW, COLOR_YELLOW);
+  init_pair(WALL_CYAN, COLOR_CYAN, COLOR_CYAN);
+  init_pair(FLOOR, COLOR_BLUE, COLOR_BLACK);
+  init_pair(BLACK, COLOR_BLACK, COLOR_BLACK);
 }
 int main(){
 
@@ -243,19 +259,19 @@ int main(){
     char input = getch();
     switch(input) {
       case 'w':
-      walkAnimation(&player, &map, 1, PLAYER_FORWARDS);
-      break;
+        walkAnimation(&player, &map, 1, PLAYER_FORWARDS);
+        break;
       case 's':
-      walkAnimation(&player, &map, 1, PLAYER_BACKWARDS);
-      break;
+        walkAnimation(&player, &map, 1, PLAYER_BACKWARDS);
+        break;
       case 'a':
-      rotationAnimation(&player, &map, M_PI/2.0, PLAYER_COUNTER_CLOCKWISE);
-      break;
+        rotationAnimation(&player, &map, M_PI/2.0, PLAYER_COUNTER_CLOCKWISE);
+        break;
       case 'd':
-      rotationAnimation(&player, &map, M_PI/2.0, PLAYER_CLOCKWISE);
-      break;
+        rotationAnimation(&player, &map, M_PI/2.0, PLAYER_CLOCKWISE);
+        break;
       default:
-      break;
+        break;
     }
     update(&player, &map, WIDTH, HEIGHT);
   }

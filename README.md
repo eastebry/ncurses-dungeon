@@ -3,7 +3,15 @@
 # TODO
 * Make intro where you set terminal size and pick a move style
 * Levels!
-* Fix the screen tearing and refreshing bug
+
+# Ideas
+* Text interface that says things
+* Wall textures
+* Gates that are partially see through
+* Moving doors
+* Sprites
+* Limited field of vision
+* Torches
 
 ## Screen tearing
 * The refreshing bug goes away when using apple's terminal, instead of iterm
