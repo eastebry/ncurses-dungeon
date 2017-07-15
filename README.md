@@ -8,6 +8,7 @@
 
 # Ideas
 * Text interface that says things
+* Door that only opens when you have your back to it
 * Wall textures
 * Gates that are partially see through
 * Moving doors

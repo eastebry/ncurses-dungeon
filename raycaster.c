@@ -6,6 +6,15 @@
 #include "raycaster.h"
 #include "map.h"
 
+void initColors() {
+  init_pair(WALL_RED, COLOR_RED, COLOR_RED);
+  init_pair(WALL_GREEN, COLOR_GREEN, COLOR_GREEN);
+  init_pair(WALL_YELLOW, COLOR_YELLOW, COLOR_YELLOW);
+  init_pair(WALL_CYAN, COLOR_CYAN, COLOR_CYAN);
+  init_pair(FLOOR, COLOR_BLUE, COLOR_BLACK);
+  init_pair(BLACK, COLOR_BLACK, COLOR_BLACK);
+}
+
 int getWallColor(char character){
   if (character == '*')
     return ATTR_WALL_RED;
@@ -18,24 +27,24 @@ int getWallColor(char character){
   return ATTR_WALL_YELLOW;
 }
 
-void drawColumn(int column, double colHeight, int screenHeight, char character){
+void drawColumn(WINDOW *window, int column, double colHeight, int screenHeight, char character){
   int color = getWallColor(character);
   int colTop = (int) round(screenHeight/2.0 - colHeight/2.0);
   int colBottom = (int) round(screenHeight/2.0 + colHeight/2.0);
-  attron(color);
+  wattron(window, color);
   for (int i = colTop; i < screenHeight; i++){
     if (i == colBottom) {
-      attroff(color);
+      wattroff(window, color);
       color = ATTR_FLOOR;
       character = '.';
-      attron(color);
+      wattron(window, color);
     }
-    mvaddch(i, column, character);
+    mvwaddch(window, i, column, character);
   }
-  attroff(color);
+  wattroff(window, color);
 }
 
-void raycast(struct Player *player, struct Map *map, int width, int height){
+void raycast(struct Player *player, struct Map *map, WINDOW *window, int width, int height){
   for (int x = 0; x < width; x++){
     //calculate ray position and direction
     double cameraX = 2 * x / ((double) (width)) - 1; //x-coordinate in camera space
@@ -111,7 +120,7 @@ void raycast(struct Player *player, struct Map *map, int width, int height){
 
       //Calculate height of line to draw on screen
       int lineHeight = (int)(height / perpWallDist);
-      drawColumn(x, lineHeight, height, wall);
+      drawColumn(window, x, lineHeight, height, wall);
     }
   }
 }

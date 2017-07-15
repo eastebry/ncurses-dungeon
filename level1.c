@@ -12,6 +12,7 @@
 
 
 const struct timespec DELAY = {0, 90000000L};
+WINDOW *textWindow;
 
 const char map1[] = ""\
 "********************"\
@@ -63,15 +64,35 @@ void drawMiniMap(struct Player *player, struct Map *map){
 
 }
 
+void updateInterface(WINDOW *window){
+  mvwprintw(window, 1, 2, ">> As you enter the dungeon, a stone rolls over to cover the entrance.");
+  mvwprintw(window, 2, 2, ">> You are now trapped");
+  mvwprintw(window, 3, 2, ">> What will you do?");
+
+  wattron(window, A_BOLD);
+  mvwprintw(window, 1, 80, "Commands");
+  wattroff(window, A_BOLD);
+  mvwprintw(window, 2, 80, "(L)ook   (W/A/S/D) Move");
+  mvwprintw(window, 3, 80, "(T)alk   (1/2/3/4) Use item");
+
+  wattron(window, A_BOLD);
+  mvwprintw(window, 1, 115, "Inventory");
+  wattroff(window, A_BOLD);
+  mvwprintw(window, 2, 115, "(1) Loaf of bread  (3) <empty>");
+  mvwprintw(window, 3, 115, "(2) <empty>        (4) <empty>");
+}
+
 void update(struct Player *player, struct Map *map, int w, int h){
-  clear();
+  wclear(stdscr);
   //erase();
-  raycast(player, map, w, h);
-  drawMiniMap(player, map);
-  attron(A_BOLD);
-  box(stdscr, 0, 0);
-  attroff(A_BOLD);
-  refresh();
+  raycast(player, map, stdscr, w, h);
+  //drawMiniMap(player, map);
+  wattron(textWindow, A_BOLD);
+  box(textWindow, 0, 0);
+  wattroff(textWindow, A_BOLD);
+  updateInterface(textWindow);
+  wrefresh(stdscr);
+  wrefresh(textWindow);
 }
 
 void walkAnimation(struct Player *player, struct Map *map, double distance, double direction){
@@ -106,24 +127,18 @@ void rotationAnimation(struct Player *player, struct Map *map, double radians, i
   player->cameraPlaneY = finalCameraY;
 }
 
-void initColors() {
-  init_pair(WALL_RED, COLOR_RED, COLOR_RED);
-  init_pair(WALL_GREEN, COLOR_GREEN, COLOR_GREEN);
-  init_pair(WALL_YELLOW, COLOR_YELLOW, COLOR_YELLOW);
-  init_pair(WALL_CYAN, COLOR_CYAN, COLOR_CYAN);
-  init_pair(FLOOR, COLOR_BLUE, COLOR_BLACK);
-  init_pair(BLACK, COLOR_BLACK, COLOR_BLACK);
-}
-
 int main(){
-  resizeterm(WIDTH, HEIGHT);
+  //resizeterm(WIDTH, HEIGHT);
   initscr();
+  start_color();
+  initColors();
   cbreak();
   noecho();
   //nodelay(stdscr, TRUE);
   curs_set(FALSE);
-  start_color();
-  initColors();
+
+  textWindow = newwin(6, WIDTH, HEIGHT, 0);
+  box(textWindow, 0, 0);
 
   struct Map map = {20, &map1};
   struct Player player = {2, 2, 0, 0, 0.66};

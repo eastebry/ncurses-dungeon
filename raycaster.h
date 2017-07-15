@@ -2,6 +2,8 @@
 #ifndef RAYCAST_H_   /* Include guard */
 #define RAYCAST_H_
 
+#include <ncurses.h>
+
 #include "player.h"
 #include "map.h"
 
@@ -21,7 +23,8 @@
 #define ATTR_WALL_CYAN COLOR_PAIR(WALL_CYAN)
 #define ATTR_FLOOR COLOR_PAIR(FLOOR)
 
-void drawColumn(int column, double colHeight, int screenHeight, char character);
-void raycast (struct Player *player, struct Map *map, int width, int height);
+void initColors();
+void drawColumn(WINDOW *window, int column, double colHeight, int screenHeight, char character);
+void raycast (struct Player *player, struct Map *map, WINDOW *window, int width, int height);
 
 #endif
