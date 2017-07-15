@@ -203,6 +203,9 @@ void update(struct Player *player, struct Map *map, int w, int h){
   //erase();
   raycast(player, map, w, h);
   drawMiniMap(player, map);
+  attron(A_BOLD);
+  box(stdscr, 0, 0);
+  attroff(A_BOLD);
   refresh();
 }
 

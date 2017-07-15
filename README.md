@@ -2,6 +2,8 @@
 
 # TODO
 * Make intro where you set terminal size and pick a move style
+* Text interface
+* detect width and height of the terminal
 * Levels!
 
 # Ideas
