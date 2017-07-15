@@ -178,7 +178,7 @@ void drawMiniMap(struct Player *player, struct Map *map){
       mvaddch(j, i + offset, getPositionInMap(j,i, map));
     }
   }
-  mvaddch((int)floor(player->y), ((int) floor(player->x)) + offset, 'P');
+  mvaddch((int)round(player->y), ((int) round(player->x)) + offset, 'P');
   char str1[80];
   sprintf(str1, "X: %9.7f", player->x);
   mvprintw(25, offset, &str1);
@@ -188,6 +188,13 @@ void drawMiniMap(struct Player *player, struct Map *map){
   char str3[80];
   sprintf(str3, "Direction: %9.7f", player->direction);
   mvprintw(27, offset, &str3);
+  char str4[80];
+  sprintf(str4, "X (int): %d", (int) round(player->x));
+  mvprintw(28, offset, &str4);
+  char str5[80];
+  sprintf(str5, "Y (int): %d", (int) round(player->y));
+  mvprintw(29, offset, &str5);
+
 }
 
 
@@ -203,7 +210,7 @@ void walkAnimation(struct Player *player, struct Map *map, double distance, doub
   double moveSpeed = .1;
   double finalX = player-> x + cos(player->direction) * distance * direction;
   double finalY = player-> y + sin(player->direction) * distance * direction;
-  if (getPositionInMap((int) floor(finalY), (int) floor(finalX), map) != ' ')
+  if (getPositionInMap((int) round(finalY), (int) round(finalX), map) != ' ')
     return;
   for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
     walk(player, moveSpeed, direction);
