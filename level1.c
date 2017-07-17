@@ -5,6 +5,7 @@
 #include "raycaster.h"
 #include "player.h"
 #include "map.h"
+#include "interface.h"
 
 // Screen width and height
 #define WIDTH 150
@@ -12,7 +13,7 @@
 
 
 const struct timespec DELAY = {0, 90000000L};
-WINDOW *textWindow;
+WINDOW *textWindow, *mainWindow;
 
 const char map1[] = ""\
 "********************"\
@@ -37,62 +38,13 @@ const char map1[] = ""\
 "X   *    *  -      X"\
 "--------------------";
 
-
-void drawMiniMap(struct Player *player, struct Map *map){
-  int offset = 150;
-  for (int i = 0; i < map->size; i++){
-    for (int j = 0; j < map->size; j++){
-      mvaddch(j, i + offset, getPositionInMap(map, j, i));
-    }
-  }
-  mvaddch((int)round(player->y), ((int) round(player->x)) + offset, 'P');
-  char str1[80];
-  sprintf(str1, "X: %9.7f", player->x);
-  mvprintw(25, offset, &str1);
-  char str2[80];
-  sprintf(str2, "Y: %9.7f", player->y);
-  mvprintw(26, offset, &str2);
-  char str3[80];
-  sprintf(str3, "Direction: %9.7f", player->direction);
-  mvprintw(27, offset, &str3);
-  char str4[80];
-  sprintf(str4, "X (int): %d", (int) round(player->x));
-  mvprintw(28, offset, &str4);
-  char str5[80];
-  sprintf(str5, "Y (int): %d", (int) round(player->y));
-  mvprintw(29, offset, &str5);
-
-}
-
-void updateInterface(WINDOW *window){
-  mvwprintw(window, 1, 2, ">> As you enter the dungeon, a stone rolls over to cover the entrance.");
-  mvwprintw(window, 2, 2, ">> You are now trapped");
-  mvwprintw(window, 3, 2, ">> What will you do?");
-
-  wattron(window, A_BOLD);
-  mvwprintw(window, 1, 80, "Commands");
-  wattroff(window, A_BOLD);
-  mvwprintw(window, 2, 80, "(L)ook   (W/A/S/D) Move");
-  mvwprintw(window, 3, 80, "(T)alk   (1/2/3/4) Use item");
-
-  wattron(window, A_BOLD);
-  mvwprintw(window, 1, 115, "Inventory");
-  wattroff(window, A_BOLD);
-  mvwprintw(window, 2, 115, "(1) Loaf of bread  (3) <empty>");
-  mvwprintw(window, 3, 115, "(2) <empty>        (4) <empty>");
-}
-
 void update(struct Player *player, struct Map *map, int w, int h){
-  wclear(stdscr);
-  //erase();
-  raycast(player, map, stdscr, w, h);
+  //wclear(mainWindow);
+  //TODO is there a way to get this to work?
+  werase(mainWindow);
+  raycast(player, map, mainWindow, w, h);
   //drawMiniMap(player, map);
-  wattron(textWindow, A_BOLD);
-  box(textWindow, 0, 0);
-  wattroff(textWindow, A_BOLD);
-  updateInterface(textWindow);
-  wrefresh(stdscr);
-  wrefresh(textWindow);
+  wrefresh(mainWindow);
 }
 
 void walkAnimation(struct Player *player, struct Map *map, double distance, double direction){
@@ -137,12 +89,18 @@ int main(){
   //nodelay(stdscr, TRUE);
   curs_set(FALSE);
 
+  mainWindow = newwin(HEIGHT, WIDTH, 0, 0);
   textWindow = newwin(6, WIDTH, HEIGHT, 0);
-  box(textWindow, 0, 0);
 
   struct Map map = {20, &map1};
   struct Player player = {2, 2, 0, 0, 0.66};
+  struct Interface interface = {
+    textWindow,
+    {"", "", ""},
+    {"Tuna sandwhich", "<empty>"}
+  };
   update(&player, &map, WIDTH, HEIGHT);
+  updateInterface(&interface);
 
   while (1){
     char input = getch();
@@ -159,10 +117,17 @@ int main(){
       case 'd':
         rotationAnimation(&player, &map, M_PI/2.0, PLAYER_CLOCKWISE);
         break;
+      case 'l':
+        addMessage(&interface, "The air is cold and damp");
+        break;
+      case 't':
+        addMessage(&interface, "You start speaking but trail off. No one is around to hear.");
+        break;
       default:
         break;
     }
     update(&player, &map, WIDTH, HEIGHT);
+    updateInterface(&interface);
   }
 
   endwin();
