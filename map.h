@@ -6,9 +6,10 @@
 
 struct Map {
   int size;
-  const char *map;
+  char *map;
 };
 
 char getPositionInMap(struct Map *map, int y, int x);
+void setPositionInMap(struct Map *map, int y, int x, char newChar);
 
 #endif

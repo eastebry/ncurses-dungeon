@@ -41,3 +41,9 @@ void addMessage(struct Interface *interface, char *message) {
   }
   updateInterface(interface);
 }
+
+void clearMessage(struct Interface *interface){
+  for (int i = 0; i < INTERFACE_MESSAGES_SIZE; i++){
+    interface->messages[i] = NULL;
+  }
+}

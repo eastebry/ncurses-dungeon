@@ -15,4 +15,5 @@ struct Interface {
 
 void updateInterface(struct Interface *textbox);
 void addMessage(struct Interface *interface, char *message);
+void clearMessage(struct Interface *interface);
 #endif
