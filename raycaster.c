@@ -110,7 +110,8 @@ void raycast(struct Player *player, struct Map *map, WINDOW *window, int width, 
       }
       //Check if ray has hit a wall
       wall = getPositionInMap(map, mapY, mapX);
-      if (wall != ' ') hit = true;
+      if (wall != MAP_OPEN_SPACE)
+        hit = true;
     }
 
     //Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
