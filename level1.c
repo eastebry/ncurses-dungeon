@@ -1,6 +1,8 @@
+#include <stdlib.h>
 #include <ncurses.h>
 #include <time.h>
 #include <math.h>
+#include <string.h>
 
 #include "raycaster.h"
 #include "player.h"
@@ -18,50 +20,84 @@
 const struct timespec DELAY = {0, 90000000L};
 WINDOW *textWindow, *mainWindow;
 
+const int mapSize = 20;
 const char map1[] = ""\
 "********************"\
-"X             &    X"\
-"X******         *  X"\
-"X     *  -------*  X"\
-"X               *& X"\
-"X------  XXXX  X*  X"\
-"X     *  X      *  X"\
-"X  &  *  X&&&&&&&  X"\
-"X  &               X"\
-"X  &&&&  ***  ***  X"\
+"X ab  c dd&   &    X"\
+"X******  d&     *  X"\
+"Xe    *  -------*  X"\
+"Xee              *& X"\
+"X------- XXXX  X*  X"\
+"X     **pX      *  X"\
+"X  &  ** X&&&&&&&  X"\
+"X  &              -X"\
+"X  ---&&&&  ***    X"\
 "X   &    X     &X  X"\
-"X** &  * X &&& &   X"\
-"-      *   &      XX"\
+"X** &  * XX&&& &   X"\
+"-          &      XX"\
 "-   ------------FF--"\
 "X         XXX**    X"\
 "X         XXX**    X"\
-"X            ******X"\
-"X****&&&           X"\
+"X           X******X"\
+"X****&&&&&&&      X"\
 "X   *       &&&&&&&X"\
 "X   *    *  -      X"\
 "--------------------";
 
 void checkInteraction(struct Player *player, struct Map *map, struct Interface *interface, int interactionType){
   int playerX = round(player->x); int playerY = round(player->y);
+  clearMessage(interface);
+  char marker = getPositionInMap(map, player->y, player->x);
   switch (interactionType){
     case INTERACTION_TYPE_WALK:
-      if (playerX == 2 && playerY == 1) {
-        addMessage(interface, "Immediately after entering, you hear a thunderous boom.");
-        addMessage(interface, "The wall ceiling behind you collapse into a pile of rubble.");
+      if (marker == 'a'){
+        addMessage(interface, "Immediately after entering, you hear a thunderous boom");
+        addMessage(interface, "The wall ceiling behind you collapse into a pile of rubble");
         addMessage(interface, "You barely avoid the falling rock, but you are now trapped");
       }
-      else if (playerX == 3 && playerY == 1)
+      else if (marker == 'b')
         addMessage(interface, "The air here is thick and damp.");
-      else if (playerX == 5 && playerY == 1)
-        addMessage(interface, "You a light breeze. This dungeon is large and cavernous.");
-      else if (playerX == 6 && playerY == 1)
-        addMessage(interface, "You sense that you are not alone");
+      else if (marker == 'c')
+        addMessage(interface, "You feel a light breeze. This dungeon is large and cavernous.");
+      else if (marker == 'd'){
+        addMessage(interface, "There is a skeleton lying on the ground. It has clearly been here for while.");
+        addMessage(interface, "The bones of its fingers are curled around a piece of parchment.");
+        addMessage(interface, "Press (L) to read the note.");
+      }
+      else if (marker == 'e'){
+        addMessage(interface, "There is a another skeleton on the ground.");
+        addMessage(interface, "There some paper lying on the ground next to it.");
+      }
+      else if (getPositionInMap(map, playerY, playerX) == 'p') {
+        addMessage(interface, "There's an object lying on the ground.");
+      }
       break;
     case INTERACTION_TYPE_LOOK:
+      if (marker == 'd') {
+        addMessage(interface, "The note reads: I've been trapped in this maze for weeks.");
+        addMessage(interface, "This dungeon is a labyrenth. I've expored every passageway ten times,");
+        addMessage(interface, "but still can't find where I entered. I wish I had a map.");
+      }
+      else if (marker == 'e') {
+        addMessage(interface, "The note reads: I ran into a another group of explorers today.");
+        addMessage(interface, "They told me that some of the stone walls are more brittle than others");
+        addMessage(interface, "and could be broken. No help to me. I can't tell any of these apart.");
+      }
+      else
         addMessage(interface, "You are surrounded by rock and darkness. Nothing interesting here.");
       break;
     case INTERACTION_TYPE_TALK:
-      addMessage(interface, "You start speaking but trail off. No one is around to hear.");
+      if (marker == 'd'){
+        addMessage(interface, "You ask the skeleton for directions, ");
+        addMessage(interface, "but are unsurprised when it does not respond.");
+        addMessage(interface, "You ask yourself why you tried to ask a corpse for directions.");
+      }
+      else if (marker == 'p') {
+        addMessage(interface, "You try talking to the object, but hear only silence.");
+        addMessage(interface, "It appears to be dead, inanimate, or at least not responsive");
+      }
+      else
+        addMessage(interface, "You start speaking but trail off. No one is around to hear.");
     default:
       break;
   }
@@ -81,7 +117,7 @@ void walkAnimation(struct Player *player, struct Map *map, double distance, doub
   double finalX = player-> x + cos(player->direction) * distance * direction;
   double finalY = player-> y + sin(player->direction) * distance * direction;
   char nextPosition = getPositionInMap(map, (int) round(finalY), (int) round(finalX));
-  if (nextPosition != MAP_OPEN_SPACE)
+  if ( !(nextPosition == MAP_OPEN_SPACE || nextPosition > MAP_MARKER_MIN))
     return;
   for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
     walk(player, moveSpeed, direction);
@@ -122,11 +158,13 @@ int main(){
   mainWindow = newwin(HEIGHT, WIDTH, 0, 0);
   textWindow = newwin(6, WIDTH, HEIGHT, 0);
 
-  struct Map map = {20, &map1};
+  char * mapcp = (char *) malloc(sizeof(char) * (strlen(&map1) + 1));
+  strcpy(mapcp, map1);
+  struct Map map = {20, mapcp};
   struct Player player = {1, 1, 0, 0, 0.66};
   struct Interface interface = {
     textWindow,
-    {"", "", ""},
+    {NULL, NULL, NULL},
     {"Tuna sandwhich", ""}
   };
   update(&player, &map, WIDTH, HEIGHT);

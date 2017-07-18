@@ -110,7 +110,7 @@ void raycast(struct Player *player, struct Map *map, WINDOW *window, int width, 
       }
       //Check if ray has hit a wall
       wall = getPositionInMap(map, mapY, mapX);
-      if (wall != MAP_OPEN_SPACE)
+      if (wall != MAP_OPEN_SPACE && wall < MAP_MARKER_MIN)
         hit = true;
     }
 
