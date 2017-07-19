@@ -25,8 +25,8 @@ void updateInterface(struct Interface *interface){
   wattroff(window, A_BOLD);
   mvwprintw(window, 2, 115, "1) ");
   mvwprintw(window, 2, 118, interface->inventory[0]);
-  //mvwprintw(window, 3, 115, "2) ");
-  //mvwprintw(window, 3, 118, interface->inventory[1]);
+  mvwprintw(window, 3, 115, "2) ");
+  mvwprintw(window, 3, 118, interface->inventory[1]);
   wrefresh(window);
 }
 

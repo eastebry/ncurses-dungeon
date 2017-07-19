@@ -45,7 +45,6 @@ const char map1[] = ""\
 "--------------------";
 
 void checkInteraction(struct Player *player, struct Map *map, struct Interface *interface, int interactionType){
-  int playerX = round(player->x); int playerY = round(player->y);
   clearMessage(interface);
   char marker = getPositionInMap(map, player->y, player->x);
   switch (interactionType){
@@ -68,7 +67,7 @@ void checkInteraction(struct Player *player, struct Map *map, struct Interface *
         addMessage(interface, "There is a another skeleton on the ground.");
         addMessage(interface, "There some paper lying on the ground next to it.");
       }
-      else if (getPositionInMap(map, playerY, playerX) == 'p') {
+      else if (marker == 'p') {
         addMessage(interface, "There's an object lying on the ground.");
       }
       break;
@@ -82,6 +81,12 @@ void checkInteraction(struct Player *player, struct Map *map, struct Interface *
         addMessage(interface, "The note reads: I ran into a another group of explorers today.");
         addMessage(interface, "They told me that some of the stone walls are more brittle than others");
         addMessage(interface, "and could be broken. No help to me. I can't tell any of these apart.");
+      }
+      else if (marker == 'p'){
+        addMessage(interface, "It appears to be mining tool. You pick it up");
+        // TODO a rather janky way to do this, should mk
+        interface->inventory[1] = "Feeble pickaxe";
+        setPositionInMap(map, player->y, player->x, MAP_OPEN_SPACE);
       }
       else
         addMessage(interface, "You are surrounded by rock and darkness. Nothing interesting here.");
@@ -100,6 +105,16 @@ void checkInteraction(struct Player *player, struct Map *map, struct Interface *
         addMessage(interface, "You start speaking but trail off. No one is around to hear.");
     default:
       break;
+  }
+}
+
+void useItem(struct Interface *interface, int itemIndex){
+  clearMessage(interface);
+  char * item = interface->inventory[itemIndex];
+  if (strcmp(item, "Tuna sandwhich") == 0){
+    addMessage(interface, "You eat the sandwhich.");
+    addMessage(interface, "It is delicious and nutritous.");
+    interface->inventory[itemIndex] = "";
   }
 }
 
@@ -192,6 +207,9 @@ int main(){
         break;
       case 't':
         checkInteraction(&player, &map, &interface, INTERACTION_TYPE_TALK);
+        break;
+      case '1':
+        useItem(&interface, 0);
         break;
       default:
         break;
