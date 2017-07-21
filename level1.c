@@ -23,25 +23,25 @@ WINDOW *textWindow, *mainWindow;
 const int mapSize = 20;
 const char map1[] = ""\
 "********************"\
-"X ab  c dd&   &    X"\
+"X ab  c dd&     *  X"\
 "X******  d&     *  X"\
 "Xe    *  -------*  X"\
-"Xee              *& X"\
+"Xee             *-&X"\
 "X------- XXXX  X*  X"\
-"X     **pX      *  X"\
+"X     **pX X    *  X"\
 "X  &  ** X&&&&&&&  X"\
 "X  &              -X"\
-"X  ---&&&&  ***    X"\
-"X   &    X     &X  X"\
+"X  ---&&&& *****   X"\
+"X        X     &X  X"\
 "X** &  * XX&&& &   X"\
-"-          &      XX"\
-"-   ------------FF--"\
+"-   &      &       X"\
+"-   ------------F---"\
 "X         XXX**    X"\
-"X         XXX**    X"\
-"X           X******X"\
-"X****&&&&&&&      X"\
-"X   *       &&&&&&&X"\
-"X   *    *  -      X"\
+"X    -    X   *    X"\
+"X         XF-F- F-*X"\
+"X****&&&&&  &    --X"\
+"X    FFF---F---F---X"\
+"X   -FFFF    -   --X"\
 "--------------------";
 
 void checkInteraction(struct Player *player, struct Map *map, struct Interface *interface, int interactionType){
@@ -108,13 +108,32 @@ void checkInteraction(struct Player *player, struct Map *map, struct Interface *
   }
 }
 
-void useItem(struct Interface *interface, int itemIndex){
+void useItem(struct Player *player, struct Map *map, struct Interface *interface, int itemIndex){
   clearMessage(interface);
   char * item = interface->inventory[itemIndex];
   if (strcmp(item, "Tuna sandwhich") == 0){
     addMessage(interface, "You eat the sandwhich.");
     addMessage(interface, "It is delicious and nutritous.");
     interface->inventory[itemIndex] = "";
+  }
+  else if (strcmp(item, "Feeble pickaxe") == 0){
+    int forwardX = round(player-> x + cos(player->direction) * PLAYER_FORWARDS);
+    int forwardY = round(player-> y + sin(player->direction) * PLAYER_FORWARDS);
+    char position = getPositionInMap(map, forwardY, forwardX);
+    switch(position) {
+      case MAP_OPEN_SPACE:
+        addMessage(interface, "You swing the pickaxe. It strikes nothing.");
+        break;
+      case 'F':
+        addMessage(interface, "You swing the pickaxe against the rock. It crumbles apart");
+        setPositionInMap(map, forwardY, forwardX, MAP_OPEN_SPACE);
+        break;
+      default:
+        // TODO, we don't want this to hit markers
+        // TODO make it break
+        addMessage(interface, "You swing the pickaxe, and it breaks");
+        addMessage(interface, "Well that is a bummer");
+    }
   }
 }
 
@@ -127,8 +146,9 @@ void update(struct Player *player, struct Map *map, int w, int h){
   wrefresh(mainWindow);
 }
 
-void walkAnimation(struct Player *player, struct Map *map, double distance, double direction){
+void walkAnimation(struct Player *player, struct Map *map, short direction){
   double moveSpeed = .1;
+  double distance = 1.0;
   double finalX = player-> x + cos(player->direction) * distance * direction;
   double finalY = player-> y + sin(player->direction) * distance * direction;
   char nextPosition = getPositionInMap(map, (int) round(finalY), (int) round(finalX));
@@ -189,11 +209,11 @@ int main(){
     char input = getch();
     switch(input) {
       case 'w':
-        walkAnimation(&player, &map, 1, PLAYER_FORWARDS);
+        walkAnimation(&player, &map, PLAYER_FORWARDS);
         checkInteraction(&player, &map, &interface, INTERACTION_TYPE_WALK);
         break;
       case 's':
-        walkAnimation(&player, &map, 1, PLAYER_BACKWARDS);
+        walkAnimation(&player, &map, PLAYER_BACKWARDS);
         checkInteraction(&player, &map, &interface, INTERACTION_TYPE_WALK);
         break;
       case 'a':
@@ -209,7 +229,10 @@ int main(){
         checkInteraction(&player, &map, &interface, INTERACTION_TYPE_TALK);
         break;
       case '1':
-        useItem(&interface, 0);
+        useItem(&player, &map, &interface, 0);
+        break;
+      case '2':
+        useItem(&player, &map, &interface, 1);
         break;
       default:
         break;

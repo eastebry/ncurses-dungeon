@@ -2,9 +2,10 @@
 
 # TODO
 * Make intro where you set terminal size and pick a move style
-* Text interface
+* Refactor so that a game object has the player, map and interface
 * detect width and height of the terminal
 * Levels!
+
 
 # Ideas
 * Text interface that says things
