@@ -13,9 +13,6 @@
 #define WIDTH 150
 #define HEIGHT 50
 
-#define INTERACTION_TYPE_WALK 0
-#define INTERACTION_TYPE_LOOK 1
-#define INTERACTION_TYPE_TALK 2
 
 const struct timespec DELAY = {0, 90000000L};
 WINDOW *textWindow, *mainWindow;
@@ -24,8 +21,8 @@ const int mapSize = 20;
 const char map1[] = ""\
 "********************"\
 "X ab  c dd&     *  X"\
-"X******  d&     *  X"\
-"Xe    *  -------*  X"\
+"X*** **  d&     *  X"\
+"Xe  --*  -------*  X"\
 "Xee             *-&X"\
 "X------- XXXX  X*  X"\
 "X     **pX X    *  X"\
@@ -38,10 +35,10 @@ const char map1[] = ""\
 "-   ------------F---"\
 "X         XXX**    X"\
 "X    -    X   *    X"\
-"X         XF-F- F-*X"\
-"X****&&&&&  &    --X"\
-"X    FFF---F---F---X"\
-"X   -FFFF    -   --X"\
+"X         XF-F--F-*X"\
+"X****&&&&&  &    XXX"\
+"X    F&&---F---F---X"\
+"X   &FFFF    -   --X"\
 "--------------------";
 
 void checkInteraction(struct Player *player, struct Map *map, struct Interface *interface, int interactionType){

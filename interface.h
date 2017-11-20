@@ -1,4 +1,3 @@
-
 #ifndef TEXTBOX_H_   /* Include guard */
 #define TEXTBOX_H_
 
