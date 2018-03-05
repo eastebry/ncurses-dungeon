@@ -2,8 +2,8 @@
 #include "engine.h"
 #include "player.h"
 #include "map.h"
-#include "raycast.h"
-
+#include "raycaster.h"
+/*
 const struct timespec DELAY = {0, 90000000L};
 
 ENGINE * createEngine(int rows, int cols, const char *mapStr,
@@ -143,3 +143,5 @@ void shutdown(ENGINE *engine){
   // TODO free everything here
   endwin();
 }
+
+*/

@@ -4,6 +4,7 @@
 #include <math.h>
 #include <string.h>
 
+#include "engine.h"
 #include "raycaster.h"
 #include "player.h"
 #include "map.h"
