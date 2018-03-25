@@ -11,9 +11,15 @@
 
 const struct timespec FRAME_DELAY = {0, 90000000L};
 
-ENGINE * createEngine(int rows, int cols, const char *mapStr,
-    int mapSize, int playerStartR, int playerStartC,
-    INTERACTION_FUNCTION interactionFn) {
+ENGINE * createEngine(
+        int rows,
+        int cols, 
+        const char *mapStr,
+        int mapSize, 
+        int playerStartR, 
+        int playerStartC,
+        int interfaceHeight,
+        INTERACTION_FUNCTION interactionFn) {
   // setup screen
   initscr();
   start_color();
@@ -24,8 +30,8 @@ ENGINE * createEngine(int rows, int cols, const char *mapStr,
   curs_set(FALSE);
 
   WINDOW * parentWindow = newwin(rows, cols, 0, 0);
-  WINDOW * graphicsWindow = subwin(parentWindow, rows - 6, cols, 0, 0);
-  WINDOW * textWindow = subwin(parentWindow, 6, cols, rows-6, 0);
+  WINDOW * graphicsWindow = subwin(parentWindow, rows - interfaceHeight, cols, 0, 0);
+  WINDOW * textWindow = subwin(parentWindow, interfaceHeight, cols, rows - interfaceHeight, 0);
 
   //resizeterm(WIDTH, HEIGHT);
 
@@ -52,6 +58,7 @@ ENGINE * createEngine(int rows, int cols, const char *mapStr,
   engine->interface = interface;
   engine->interactionFn = interactionFn;
   interface->window = textWindow;
+  interface->height = interfaceHeight;
   engine->mainWindow = graphicsWindow;
 
   return engine;
@@ -60,6 +67,7 @@ ENGINE * createEngine(int rows, int cols, const char *mapStr,
 void renderFrame(ENGINE *engine){
   werase(engine->mainWindow);
   raycast(engine->player, engine->map, engine->mainWindow, engine->cols, engine->rows);
+  box(engine->mainWindow, 0, 0);
   //drawMiniMap(player, map);
   wrefresh(engine->mainWindow);
 }

@@ -34,6 +34,7 @@ typedef void (*INTERACTION_FUNCTION)(ENGINE *, INTERACTION);
 ENGINE * createEngine(int rows, int cols,
   const char *mapStr,
   int mapSize, int playerStartR, int playerStartC,
+  int interfaceHeight,
   INTERACTION_FUNCTION interactionFn
 );
 

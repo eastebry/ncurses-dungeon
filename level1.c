@@ -6,13 +6,13 @@
 
 #include "engine.h"
 
-#define ROWS 24
-#define COLS 80
+#define ROWS 40
+#define COLS 100
 
 const int mapSize = 20;
 const char map1[] = ""\
 "********************"\
-"X ab  c dd&     *  X"\
+"X  ab c dd&     *  X"\
 "X*** **  d&     *  X"\
 "Xe  --*  -------*  X"\
 "Xee             *-&X"\
@@ -73,8 +73,7 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType){
       }
       else if (marker == 'p'){
         addMessage(engine->interface, "It appears to be mining tool. You pick it up");
-        // TODO a rather janky way to do this, should mk
-        engine->interface->inventory[1] = "Feeble pickaxe";
+        addItem(engine->interface, "Feeble pickaxe");
         setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
       }
       else
@@ -128,6 +127,6 @@ void useItem(ENGINE *engine, int itemIndex) {
 }
 
 int main(){
-    ENGINE *engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, &checkInteraction); 
+    ENGINE *engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction); 
     gameLoop(engine);
 }
