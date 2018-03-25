@@ -1,5 +1,5 @@
-#ifndef TEXTBOX_H_   /* Include guard */
-#define TEXTBOX_H_
+#ifndef INTERFACE_H_   /* Include guard */
+#define INTERFACE_H_
 
 #include <ncurses.h>
 
