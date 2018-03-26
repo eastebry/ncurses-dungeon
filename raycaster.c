@@ -24,6 +24,8 @@ int getWallColor(char character){
     return ATTR_WALL_YELLOW;
   if (character == '&')
     return ATTR_WALL_CYAN;
+  if (character  == 'E')
+      return ATTR_ALL_BLACK;
   return ATTR_WALL_YELLOW;
 }
 

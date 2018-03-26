@@ -19,7 +19,8 @@ ENGINE * createEngine(
         int playerStartR, 
         int playerStartC,
         int interfaceHeight,
-        INTERACTION_FUNCTION interactionFn) {
+        INTERACTION_FUNCTION interactionFn,
+        USE_ITEM_FUNCTION useItemFn) {
   // setup screen
   initscr();
   start_color();
@@ -36,7 +37,7 @@ ENGINE * createEngine(
   //resizeterm(WIDTH, HEIGHT);
 
   // TODO is there a way to malloc and assign simultaneously
-  struct Player * player = (struct Player *) malloc(sizeof(struct Player));
+  struct Player * player = (struct Player *) calloc(1, sizeof(struct Player));
   player->x = playerStartR;
   player->y = playerStartC;
   player->direction = 0;
@@ -45,7 +46,7 @@ ENGINE * createEngine(
 
   struct Interface * interface = (struct Interface *) calloc(1, sizeof(struct Interface));
 
-  struct Map *map =  malloc(sizeof(struct Map));
+  struct Map *map =  calloc(1, sizeof(struct Map));
   map->map = (char *) calloc(1, sizeof(char) * (strlen(mapStr) + 1));
   strcpy(map->map, mapStr);
   map->size = mapSize;
@@ -57,8 +58,10 @@ ENGINE * createEngine(
   engine->map = map;
   engine->interface = interface;
   engine->interactionFn = interactionFn;
+  engine->useItemFn = useItemFn;
   interface->window = textWindow;
   interface->height = interfaceHeight;
+  engine->parentWindow = parentWindow;
   engine->mainWindow = graphicsWindow;
 
   return engine;
@@ -106,10 +109,6 @@ void rotationAnimation(ENGINE *engine, double radians, int direction){
   engine->player->cameraPlaneY = finalCameraY;
 }
 
-void interaction(ENGINE *engine, INTERACTION interaction){
-    engine->interactionFn(engine, interaction);
-}
-
 void gameLoop(ENGINE *engine){
   updateInterface(engine->interface);
   renderFrame(engine);
@@ -119,7 +118,7 @@ void gameLoop(ENGINE *engine){
     switch(input) {
       case 'w':
         walkAnimation(engine, PLAYER_FORWARDS);
-        interaction(engine, INTERACTION_TYPE_WALK);
+        engine->interactionFn(engine, INTERACTION_TYPE_WALK);
         break;
       case 's':
         walkAnimation(engine, PLAYER_BACKWARDS);
@@ -132,18 +131,18 @@ void gameLoop(ENGINE *engine){
         rotationAnimation(engine, M_PI/2.0, PLAYER_CLOCKWISE);
         break;
       case 'l':
-        interaction(engine, INTERACTION_TYPE_LOOK);
+        engine->interactionFn(engine, INTERACTION_TYPE_LOOK);
         break;
       case 't':
-        interaction(engine, INTERACTION_TYPE_TALK);
+        engine->interactionFn(engine, INTERACTION_TYPE_TALK);
         break;
       case '1':
-        // TODO: this
-        // useItem(engine, 0);
+        if (engine->interface->inventory[0] != NULL)
+            engine->useItemFn(engine, engine->interface->inventory[0], 0); 
         break;
       case '2':
-        // TODO this
-        //useItem(engine, 1);
+        if (engine->interface->inventory[0] != NULL)
+            engine->useItemFn(engine, engine->interface->inventory[1], 1); 
         break;
       default:
         break;
@@ -154,7 +153,13 @@ void gameLoop(ENGINE *engine){
 }
 
 void shutdown(ENGINE *engine){
-  // TODO call delwin()
-  // TODO free everything here
+  delwin(engine->interface->window);
+  delwin(engine->mainWindow);
+  delwin(engine->parentWindow);
+  free(engine->player);
+  free(engine->interface);
+  free(engine->map->map);
+  free(engine->map);
+  free(engine);
   endwin();
 }

@@ -21,21 +21,25 @@ extern const struct timespec FRAME_DELAY;
 typedef struct Engine {
   int rows;
   int cols;
+  WINDOW *parentWindow;
   WINDOW *mainWindow;
   struct Player *player;
   struct Map *map;
   struct Interface *interface;
   void (*interactionFn)(struct Engine *, INTERACTION);
+  void (*useItemFn)(struct Engine *, char *, int);
 } ENGINE;
 
 typedef void (*INTERACTION_FUNCTION)(ENGINE *, INTERACTION);
+typedef void (*USE_ITEM_FUNCTION)(ENGINE *, char *item, int itemIndex);
 
 // create a new game engine
 ENGINE * createEngine(int rows, int cols,
   const char *mapStr,
   int mapSize, int playerStartR, int playerStartC,
   int interfaceHeight,
-  INTERACTION_FUNCTION interactionFn
+  INTERACTION_FUNCTION interactionFn,
+  USE_ITEM_FUNCTION useItemFn
 );
 
 // run the game loop

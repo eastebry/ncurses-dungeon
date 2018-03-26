@@ -23,7 +23,7 @@ void updateInterface(struct Interface *interface){
     mvwprintw(window, 1, 2, "Commands");
     wattroff(window, A_BOLD);
     mvwprintw(window, 2, 2, "(L)ook   (W/A/S/D) Move");
-    mvwprintw(window, 3, 2, "(T)alk   (1/2/3/4) Use item");
+    mvwprintw(window, 3, 2, "(T)alk   (1/2) Use item");
     wattron(window, A_BOLD);
     mvwprintw(window, 1, 37, "Inventory");
     wattroff(window, A_BOLD);

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <ncurses.h>
 #include <time.h>
 #include <math.h>
@@ -13,9 +14,9 @@ const int mapSize = 20;
 const char map1[] = ""\
 "********************"\
 "X  ab c dd&     *  X"\
-"X*** **  d&     *  X"\
-"Xe  --*  -------*  X"\
-"Xee             *-&X"\
+"X*** **  d&        X"\
+"Xe  --*  ---  --*  X"\
+"Xee             * &X"\
 "X------- XXXX  X*  X"\
 "X     **pX X    *  X"\
 "X  &  ** X&&&&&&&  X"\
@@ -26,12 +27,31 @@ const char map1[] = ""\
 "-   &      &       X"\
 "-   ------------F---"\
 "X         XXX**    X"\
-"X    -    X   *    X"\
-"X         XF-F--F-*X"\
-"X****&&&&&  &    XXX"\
-"X    F&&---F---F---X"\
-"X   &FFFF    -   --X"\
-"--------------------";
+"X---------X   *    X"\
+"XFF    &  XF-F--F-*X"\
+"X  &  &&    &    XXX"\
+"X  &&FF&&--F---F---X"\
+"XzX&&FFFF     -    X"\
+"*E******************";
+
+char flag[1024];
+ENGINE * engine;
+
+void readFlag() {
+  FILE * pFile;
+  long lSize;
+  size_t result;
+
+  pFile = fopen("./flag", "rb" );
+  fseek(pFile , 0 , SEEK_END);
+  lSize = ftell(pFile);
+  if (lSize > 1023)
+      lSize = 1023;
+  rewind (pFile);
+  result = fread(&flag, 1, lSize, pFile);
+  flag[lSize] = '\0'; 
+  fclose (pFile);
+}
 
 void checkInteraction(ENGINE *engine, INTERACTION interactionType){
   clearMessage(engine->interface);
@@ -58,6 +78,11 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType){
       }
       else if (marker == 'p') {
         addMessage(engine->interface, "There's an object lying on the ground.");
+      }
+      else if (marker == 'f') {
+        addMessage(engine->interface, "You've found the stairs leading deeping into the dungeon");
+	readFlag();
+        addMessage(engine->interface, &flag);
       }
       break;
     case INTERACTION_TYPE_LOOK:
@@ -91,14 +116,14 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType){
       }
       else
         addMessage(engine->interface, "You start speaking but trail off. No one is around to hear.");
+      break;
     default:
       break;
   }
 }
 
-void useItem(ENGINE *engine, int itemIndex) {
+void useItem(ENGINE *engine, char * item, int itemIndex) {
   clearMessage(engine->interface);
-  char * item = engine->interface->inventory[itemIndex];
   if (strcmp(item, "Tuna sandwhich") == 0){
     addMessage(engine->interface, "You eat the sandwhich.");
     addMessage(engine->interface, "It is delicious and nutritous.");
@@ -117,16 +142,25 @@ void useItem(ENGINE *engine, int itemIndex) {
         setPositionInMap(engine->map, forwardY, forwardX, MAP_OPEN_SPACE);
         break;
       default:
-        // TODO, we don't want this to hit markers
-        // TODO make it break
-        addMessage(engine->interface, "You swing the pickaxe, and it breaks");
-        addMessage(engine->interface, "Well that is a bummer");
+        // If we hit a wall
+        if (position < MAP_MARKER_MIN) {
+            addMessage(engine->interface, "You swing the pickaxe, and it breaks");
+            addMessage(engine->interface, "Well that is a bummer");
+            // removeItem(engine->interface, itemIndex);
+        }
         break;
     }
   }
 }
 
+void clean(){
+    shutdown(engine);
+}
+
 int main(){
-    ENGINE *engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction); 
+    memset(flag, 0, sizeof flag);  
+    engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction, &useItem); 
+    atexit(clean);
+    signal(SIGTERM, exit);
     gameLoop(engine);
 }
