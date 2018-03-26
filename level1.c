@@ -146,7 +146,7 @@ void useItem(ENGINE *engine, char * item, int itemIndex) {
         if (position < MAP_MARKER_MIN) {
             addMessage(engine->interface, "You swing the pickaxe, and it breaks");
             addMessage(engine->interface, "Well that is a bummer");
-            // removeItem(engine->interface, itemIndex);
+            removeItem(engine->interface, itemIndex);
         }
         break;
     }
