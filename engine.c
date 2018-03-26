@@ -68,7 +68,8 @@ ENGINE * createEngine(
 }
 
 void renderFrame(ENGINE *engine){
-  werase(engine->mainWindow);
+  // werase(engine->mainWindow);
+  wclear(engine->mainWindow);
   raycast(engine->player, engine->map, engine->mainWindow, engine->cols, engine->rows);
   box(engine->mainWindow, 0, 0);
   //drawMiniMap(player, map);
