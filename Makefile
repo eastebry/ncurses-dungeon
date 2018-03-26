@@ -1,4 +1,4 @@
-TARGET = cast
+TARGET = level1
 LIBS = -lm -lcurses
 CC = gcc
 CFLAGS = -g -Wall

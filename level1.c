@@ -14,24 +14,24 @@ const int mapSize = 20;
 const char map1[] = ""\
 "********************"\
 "X  ab c dd&     *  X"\
-"X*** **  d&        X"\
-"Xe  --*  ---  --*  X"\
-"Xee             * &X"\
+"X*** **  d&     i  X"\
+"Xee --*  ---ii--*  X"\
+"Xee             *  X"\
 "X------- XXXX  X*  X"\
 "X     **pX X    *  X"\
 "X  &  ** X&&&&&&&  X"\
 "X  &              -X"\
-"X  ---&&&& *****   X"\
+"X  ---FF&& *****   X"\
 "X        X     &X  X"\
-"X** &  * XX&&& &   X"\
+"X--F&  * XX&&&j&   X"\
 "-   &      &       X"\
-"-   ------------F---"\
-"X         XXX**    X"\
-"X---------X   *    X"\
+"-F--------------F--X"\
+"Xff    gggXXF**   FX"\
+"X---------F   *   FX"\
 "XFF    &  XF-F--F-*X"\
 "X  &  &&    &    XXX"\
-"X  &&FF&&--F---F---X"\
-"XzX&&FFFF     -    X"\
+"X  &&FF&&--F-F-F---X"\
+"XzX&&FFFF   - -    X"\
 "*E******************";
 
 char flag[1024];
@@ -76,10 +76,32 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType){
         addMessage(engine->interface, "There is a another skeleton on the ground.");
         addMessage(engine->interface, "There some paper lying on the ground next to it.");
       }
+      else if (marker == 'f') {
+        addMessage(engine->interface, "You feel a cold breeze.");
+      }
+      else if (marker == 'g') {
+        addMessage(engine->interface, "This hallway is dark and constricting.");
+        addMessage(engine->interface, "You suddenly worry that you might never make it out.");
+      }
+      else if (marker == 'g') {
+        addMessage(engine->interface, "This hallway is dark and constricting.");
+        addMessage(engine->interface, "You suddenly worry that you might never make it out.");
+      }
+      else if (marker == 'i') {
+        addMessage(engine->interface, "You stare into room with three skeletons.");
+        addMessage(engine->interface, "Likely an exploration party that never made it out.");
+      }
+      else if (marker == 'j') {
+        addMessage(engine->interface, "These hallways meander aimlessly. You could easily get lost here.");
+      }
+      else if (marker == 'h') {
+        addMessage(engine->interface, "You stare into room with three corpses.");
+        addMessage(engine->interface, "Likely an exploration party that never made it out.");
+      }
       else if (marker == 'p') {
         addMessage(engine->interface, "There's an object lying on the ground.");
       }
-      else if (marker == 'f') {
+      else if (marker == 'z') {
         addMessage(engine->interface, "You've found the stairs leading deeping into the dungeon");
 	readFlag();
         addMessage(engine->interface, &flag);
@@ -95,6 +117,13 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType){
         addMessage(engine->interface, "The note reads: I ran into a another group of explorers today.");
         addMessage(engine->interface, "They told me that some of the stone walls are more brittle than others");
         addMessage(engine->interface, "and could be broken. No help to me. I can't tell any of these apart.");
+      }
+      else if (marker == 'f') {
+        addMessage(engine->interface, "You examine the walls for cracks, but find nothing. This rock seems solid");
+      }
+      else if (marker == 'i') {
+        addMessage(engine->interface, "You examine the corpses.");
+        addMessage(engine->interface, "You find nothing of value - they were probably already looted");
       }
       else if (marker == 'p'){
         addMessage(engine->interface, "It appears to be mining tool. You pick it up");
@@ -124,12 +153,7 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType){
 
 void useItem(ENGINE *engine, char * item, int itemIndex) {
   clearMessage(engine->interface);
-  if (strcmp(item, "Tuna sandwhich") == 0){
-    addMessage(engine->interface, "You eat the sandwhich.");
-    addMessage(engine->interface, "It is delicious and nutritous.");
-    engine->interface->inventory[itemIndex] = "";
-  }
-  else if (strcmp(item, "Feeble pickaxe") == 0) {
+  if (strcmp(item, "Feeble pickaxe") == 0) {
     int forwardX = round(engine->player-> x + cos(engine->player->direction) * PLAYER_FORWARDS);
     int forwardY = round(engine->player-> y + sin(engine->player->direction) * PLAYER_FORWARDS);
     char position = getPositionInMap(engine->map, forwardY, forwardX);
