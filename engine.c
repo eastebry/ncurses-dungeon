@@ -111,6 +111,10 @@ void rotationAnimation(ENGINE *engine, double radians, int direction){
 }
 
 void gameLoop(ENGINE *engine){
+  // this is required to prevent a 1 frame delay. No idea why
+  nodelay(stdscr, TRUE);
+  getch();
+  nodelay(stdscr, FALSE);
   updateInterface(engine->interface);
   renderFrame(engine);
 
