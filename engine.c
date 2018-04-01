@@ -27,7 +27,6 @@ ENGINE * createEngine(
   initColors();
   cbreak();
   noecho();
-  //nodelay(stdscr, TRUE);
   curs_set(FALSE);
 
   WINDOW * parentWindow = newwin(rows, cols, 0, 0);
@@ -36,7 +35,6 @@ ENGINE * createEngine(
 
   //resizeterm(WIDTH, HEIGHT);
 
-  // TODO is there a way to malloc and assign simultaneously
   struct Player * player = (struct Player *) calloc(1, sizeof(struct Player));
   player->x = playerStartR;
   player->y = playerStartC;
@@ -63,6 +61,9 @@ ENGINE * createEngine(
   interface->height = interfaceHeight;
   engine->parentWindow = parentWindow;
   engine->mainWindow = graphicsWindow;
+  engine->renderMode = RENDER_COLOR; 
+  engine->moveMode = MOVE_MODE_REGULAR; 
+  engine->gameState = STATE_PLAYING;
 
   return engine;
 }
@@ -70,9 +71,8 @@ ENGINE * createEngine(
 void renderFrame(ENGINE *engine){
   // werase(engine->mainWindow);
   wclear(engine->mainWindow);
-  raycast(engine->player, engine->map, engine->mainWindow, engine->cols, engine->rows);
+  raycast(engine->player, engine->map, engine->mainWindow, engine->cols, engine->rows, engine->renderMode);
   box(engine->mainWindow, 0, 0);
-  //drawMiniMap(player, map);
   wrefresh(engine->mainWindow);
 }
 
@@ -84,10 +84,12 @@ void walkAnimation(ENGINE *engine, short direction){
   char nextPosition = getPositionInMap(engine->map, (int) round(finalY), (int) round(finalX));
   if ( !(nextPosition == MAP_OPEN_SPACE || nextPosition > MAP_MARKER_MIN))
     return;
-  for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
-    walk(engine->player, moveSpeed, direction);
-    renderFrame(engine);
-    nanosleep(&FRAME_DELAY, NULL);
+  if (engine->moveMode == MOVE_MODE_REGULAR) {
+    for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
+        walk(engine->player, moveSpeed, direction);
+        renderFrame(engine);
+        nanosleep(&FRAME_DELAY, NULL);
+    }
   }
   engine->player->x = finalX;
   engine->player->y = finalY;
@@ -100,14 +102,22 @@ void rotationAnimation(ENGINE *engine, double radians, int direction){
   double finalCameraX = engine->player->cameraPlaneX * cos(radians * direction) - engine->player->cameraPlaneY * sin(radians * direction);
   double finalCameraY = engine->player->cameraPlaneX * sin(radians * direction) +  engine->player->cameraPlaneY * cos(radians * direction);
 
-  for (double i=0; i < (int) floor(fabs(radians/moveSpeed)); i+=1){
-    rotate(engine->player, moveSpeed, direction);
-    renderFrame(engine);
-    nanosleep(&FRAME_DELAY, NULL);
+  if (engine->moveMode == MOVE_MODE_REGULAR) { 
+    for (double i=0; i < (int) floor(fabs(radians/moveSpeed)); i+=1){
+        rotate(engine->player, moveSpeed, direction);
+        renderFrame(engine);
+        nanosleep(&FRAME_DELAY, NULL);
+    }
   }
   engine->player->direction = finalDirection;
   engine->player->cameraPlaneX = finalCameraX;
   engine->player->cameraPlaneY = finalCameraY;
+}
+
+void deathAnimation(ENGINE *engine) {
+  wclear(engine->mainWindow);
+  death(engine->mainWindow, engine->rows, engine->cols, engine->renderMode, "You have died. Game Over");
+  wrefresh(engine->mainWindow);
 }
 
 void gameLoop(ENGINE *engine){
@@ -118,7 +128,13 @@ void gameLoop(ENGINE *engine){
   updateInterface(engine->interface);
   renderFrame(engine);
 
-  while (1){
+  while (engine->gameState != STATE_END){
+    if (engine->gameState == STATE_DEAD) {
+        deathAnimation(engine);
+        getch();
+        engine->gameState = STATE_END;
+        break;
+    }
     char input = getch();
     switch(input) {
       case 'w':
@@ -148,6 +164,18 @@ void gameLoop(ENGINE *engine){
       case '2':
         if (engine->interface->inventory[0] != NULL)
             engine->useItemFn(engine, engine->interface->inventory[1], 1); 
+        break;
+      case '?':
+        if (engine->renderMode == RENDER_COLOR)
+            engine->renderMode = RENDER_CHAR;
+        else
+            engine->renderMode = RENDER_COLOR;
+        break;
+      case '!':
+        if (engine->moveMode == MOVE_MODE_REGULAR)
+            engine->moveMode = MOVE_MODE_INSTANT;
+        else
+            engine->moveMode = MOVE_MODE_REGULAR;
         break;
       default:
         break;

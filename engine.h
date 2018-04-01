@@ -1,6 +1,11 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+typedef unsigned short GAME_STATE;
+#define STATE_PLAYING 1
+#define STATE_DEAD 2
+#define STATE_END 3
+
 typedef unsigned short INTERACTION;
 
 #define INTERACTION_TYPE_WALK 0
@@ -18,11 +23,18 @@ typedef unsigned short INTERACTION;
 
 extern const struct timespec FRAME_DELAY;
 
+typedef int MOVE_MODE;
+#define MOVE_MODE_REGULAR 0
+#define MOVE_MODE_INSTANT 1
+
 typedef struct Engine {
   int rows;
   int cols;
   WINDOW *parentWindow;
   WINDOW *mainWindow;
+  MOVE_MODE moveMode;
+  RENDER_MODE renderMode;
+  GAME_STATE gameState;
   struct Player *player;
   struct Map *map;
   struct Interface *interface;

@@ -13,6 +13,7 @@ void initColors() {
   init_pair(WALL_CYAN, COLOR_CYAN, COLOR_CYAN);
   init_pair(FLOOR, COLOR_BLUE, COLOR_BLACK);
   init_pair(BLACK, COLOR_BLACK, COLOR_BLACK);
+  init_pair(END_TEXT, COLOR_WHITE, COLOR_RED);
 }
 
 int getWallColor(char character){
@@ -29,24 +30,41 @@ int getWallColor(char character){
   return ATTR_WALL_YELLOW;
 }
 
-void drawColumn(WINDOW *window, int column, double colHeight, int screenHeight, char character){
+void death(WINDOW *window, int rows, int cols, RENDER_MODE mode, char* message) {
+    int ypos = rows/2;
+    int xpos = cols/2 - strlen(message)/2;
+    if (mode == RENDER_COLOR) {
+        wbkgd(window , COLOR_PAIR(1));
+        wattron(window, ATTR_END_TEXT);
+        mvwprintw(window, ypos, xpos, message);
+        wattroff(window, ATTR_END_TEXT);
+    } else {
+        mvwprintw(window, ypos, xpos, message);
+    }
+}
+
+void drawColumn(WINDOW *window, int column, double colHeight, int screenHeight, char character, RENDER_MODE mode){
   int color = getWallColor(character);
   int colTop = (int) round(screenHeight/2.0 - colHeight/2.0);
   int colBottom = (int) round(screenHeight/2.0 + colHeight/2.0);
-  wattron(window, color);
+  if (mode == RENDER_COLOR)
+    wattron(window, color);
   for (int i = colTop; i < screenHeight; i++){
     if (i == colBottom) {
-      wattroff(window, color);
+      if (mode == RENDER_COLOR)
+        wattroff(window, color);
       color = ATTR_FLOOR;
       character = '.';
-      wattron(window, color);
+      if (mode == RENDER_COLOR)
+        wattron(window, color);
     }
     mvwaddch(window, i, column, character);
   }
-  wattroff(window, color);
+  if (mode == RENDER_COLOR)
+    wattroff(window, color);
 }
 
-void raycast(struct Player *player, struct Map *map, WINDOW *window, int width, int height){
+void raycast(struct Player *player, struct Map *map, WINDOW *window, int width, int height, RENDER_MODE mode){
   for (int x = 0; x < width; x++){
     //calculate ray position and direction
     double cameraX = 2 * x / ((double) (width)) - 1; //x-coordinate in camera space
@@ -123,7 +141,7 @@ void raycast(struct Player *player, struct Map *map, WINDOW *window, int width, 
 
       //Calculate height of line to draw on screen
       int lineHeight = (int)(height / perpWallDist);
-      drawColumn(window, x, lineHeight, height, wall);
+      drawColumn(window, x, lineHeight, height, wall, mode);
     }
   }
 }
