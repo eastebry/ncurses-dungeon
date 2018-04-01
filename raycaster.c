@@ -1,4 +1,4 @@
-
+#include <string.h>
 #include <ncurses.h>
 #include <math.h>
 
