@@ -82,8 +82,8 @@ void walkAnimation(ENGINE *engine, short direction){
   double finalX = engine->player-> x + cos(engine->player->direction) * distance * direction;
   double finalY = engine->player-> y + sin(engine->player->direction) * distance * direction;
   char nextPosition = getPositionInMap(engine->map, (int) round(finalY), (int) round(finalX));
-  if ( !(nextPosition == MAP_OPEN_SPACE || nextPosition > MAP_MARKER_MIN))
-    return;
+  ///if ( !(nextPosition == MAP_OPEN_SPACE || nextPosition > MAP_MARKER_MIN))
+  //  return;
   if (engine->moveMode == MOVE_MODE_REGULAR) {
     for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
         walk(engine->player, moveSpeed, direction);

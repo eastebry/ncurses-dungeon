@@ -1,4 +1,4 @@
-TARGET = level1 level2
+TARGET = level1 level2 level3
 LIBS = -lm -lcurses
 CC = gcc
 CFLAGS = -g -Wall
@@ -7,7 +7,7 @@ CFLAGS = -g -Wall
 .PRECIOUS: $(TARGET) $(OBJECTS)
 default: $(TARGET)
 
-MAINS=level1.o level2.o
+MAINS=level1.o level2.o level3.o
 OBJECTS = $(filter-out $(MAINS), $(patsubst %.c, %.o, $(wildcard *.c)))
 HEADERS = $(wildcard *.h)
 
@@ -16,6 +16,9 @@ level1: level1.o $(OBJECTS)
 
 level2: level2.o $(OBJECTS)
 	$(CC) $(OBJECTS) level2.o -Wall $(LIBS) -o level2
+
+level3: level3.o $(OBJECTS)
+	$(CC) $(OBJECTS) level3.o -Wall $(LIBS) -o level3
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
