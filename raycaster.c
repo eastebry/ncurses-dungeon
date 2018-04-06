@@ -18,29 +18,29 @@ void initColors() {
 
 int getWallColor(char character){
   if (character == '*')
-    return ATTR_WALL_RED;
+  return ATTR_WALL_RED;
   if (character == 'X')
-    return ATTR_WALL_GREEN;
+  return ATTR_WALL_GREEN;
   if (character == '-')
-    return ATTR_WALL_YELLOW;
+  return ATTR_WALL_YELLOW;
   if (character == '&')
-    return ATTR_WALL_CYAN;
+  return ATTR_WALL_CYAN;
   if (character  == 'E')
-      return ATTR_ALL_BLACK;
+  return ATTR_ALL_BLACK;
   return ATTR_WALL_YELLOW;
 }
 
 void death(WINDOW *window, int rows, int cols, RENDER_MODE mode, char* message) {
-    int ypos = rows/2;
-    int xpos = cols/2 - strlen(message)/2;
-    if (mode == RENDER_COLOR) {
-        wbkgd(window , COLOR_PAIR(1));
-        wattron(window, ATTR_END_TEXT);
-        mvwprintw(window, ypos, xpos, message);
-        wattroff(window, ATTR_END_TEXT);
-    } else {
-        mvwprintw(window, ypos, xpos, message);
-    }
+  int ypos = rows/2;
+  int xpos = cols/2 - strlen(message)/2;
+  if (mode == RENDER_COLOR) {
+    wbkgd(window , COLOR_PAIR(1));
+    wattron(window, ATTR_END_TEXT);
+    mvwprintw(window, ypos, xpos, message);
+    wattroff(window, ATTR_END_TEXT);
+  } else {
+    mvwprintw(window, ypos, xpos, message);
+  }
 }
 
 void drawColumn(WINDOW *window, int column, double colHeight, int screenHeight, char character, RENDER_MODE mode){
@@ -48,20 +48,20 @@ void drawColumn(WINDOW *window, int column, double colHeight, int screenHeight, 
   int colTop = (int) round(screenHeight/2.0 - colHeight/2.0);
   int colBottom = (int) round(screenHeight/2.0 + colHeight/2.0);
   if (mode == RENDER_COLOR)
-    wattron(window, color);
+  wattron(window, color);
   for (int i = colTop; i < screenHeight; i++){
     if (i == colBottom) {
       if (mode == RENDER_COLOR)
-        wattroff(window, color);
+      wattroff(window, color);
       color = ATTR_FLOOR;
       character = '.';
       if (mode == RENDER_COLOR)
-        wattron(window, color);
+      wattron(window, color);
     }
     mvwaddch(window, i, column, character);
   }
   if (mode == RENDER_COLOR)
-    wattroff(window, color);
+  wattroff(window, color);
 }
 
 void raycast(struct Player *player, struct Map *map, WINDOW *window, int width, int height, RENDER_MODE mode){
@@ -131,7 +131,7 @@ void raycast(struct Player *player, struct Map *map, WINDOW *window, int width, 
       //Check if ray has hit a wall
       wall = getPositionInMap(map, mapY, mapX);
       if (wall != MAP_OPEN_SPACE && wall < MAP_MARKER_MIN)
-        hit = true;
+      hit = true;
     }
 
     //Calculate distance projected on camera direction (oblique distance will give fisheye effect!)

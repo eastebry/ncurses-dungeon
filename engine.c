@@ -12,187 +12,187 @@
 const struct timespec FRAME_DELAY = {0, 90000000L};
 
 ENGINE * createEngine(
-        int rows,
-        int cols, 
-        const char *mapStr,
-        int mapSize, 
-        int playerStartR, 
-        int playerStartC,
-        int interfaceHeight,
-        INTERACTION_FUNCTION interactionFn,
-        USE_ITEM_FUNCTION useItemFn) {
-  // setup screen
-  initscr();
-  start_color();
-  initColors();
-  cbreak();
-  noecho();
-  curs_set(FALSE);
+  int rows,
+  int cols,
+  const char *mapStr,
+  int mapSize,
+  int playerStartR,
+  int playerStartC,
+  int interfaceHeight,
+  INTERACTION_FUNCTION interactionFn,
+  USE_ITEM_FUNCTION useItemFn) {
+    // setup screen
+    initscr();
+    start_color();
+    initColors();
+    cbreak();
+    noecho();
+    curs_set(FALSE);
 
-  WINDOW * parentWindow = newwin(rows, cols, 0, 0);
-  WINDOW * graphicsWindow = subwin(parentWindow, rows - interfaceHeight, cols, 0, 0);
-  WINDOW * textWindow = subwin(parentWindow, interfaceHeight, cols, rows - interfaceHeight, 0);
+    WINDOW * parentWindow = newwin(rows, cols, 0, 0);
+    WINDOW * graphicsWindow = subwin(parentWindow, rows - interfaceHeight, cols, 0, 0);
+    WINDOW * textWindow = subwin(parentWindow, interfaceHeight, cols, rows - interfaceHeight, 0);
 
-  //resizeterm(WIDTH, HEIGHT);
+    //resizeterm(WIDTH, HEIGHT);
 
-  struct Player * player = (struct Player *) calloc(1, sizeof(struct Player));
-  player->x = playerStartR;
-  player->y = playerStartC;
-  player->direction = 0;
-  player->cameraPlaneX = 0;
-  player->cameraPlaneY = .66; // Seems to be about the optimal view
+    struct Player * player = (struct Player *) calloc(1, sizeof(struct Player));
+    player->x = playerStartR;
+    player->y = playerStartC;
+    player->direction = 0;
+    player->cameraPlaneX = 0;
+    player->cameraPlaneY = .66; // Seems to be about the optimal view
 
-  struct Interface * interface = (struct Interface *) calloc(1, sizeof(struct Interface));
+    struct Interface * interface = (struct Interface *) calloc(1, sizeof(struct Interface));
 
-  struct Map *map =  calloc(1, sizeof(struct Map));
-  map->map = (char *) calloc(1, sizeof(char) * (strlen(mapStr) + 1));
-  strcpy(map->map, mapStr);
-  map->size = mapSize;
+    struct Map *map =  calloc(1, sizeof(struct Map));
+    map->map = (char *) calloc(1, sizeof(char) * (strlen(mapStr) + 1));
+    strcpy(map->map, mapStr);
+    map->size = mapSize;
 
-  ENGINE * engine = (ENGINE * ) malloc(sizeof(ENGINE));
-  engine->rows = rows;
-  engine->cols = cols;
-  engine->player = player;
-  engine->map = map;
-  engine->interface = interface;
-  engine->interactionFn = interactionFn;
-  engine->useItemFn = useItemFn;
-  interface->window = textWindow;
-  interface->height = interfaceHeight;
-  engine->parentWindow = parentWindow;
-  engine->mainWindow = graphicsWindow;
-  engine->renderMode = RENDER_COLOR; 
-  engine->moveMode = MOVE_MODE_REGULAR; 
-  engine->gameState = STATE_PLAYING;
+    ENGINE * engine = (ENGINE * ) malloc(sizeof(ENGINE));
+    engine->rows = rows;
+    engine->cols = cols;
+    engine->player = player;
+    engine->map = map;
+    engine->interface = interface;
+    engine->interactionFn = interactionFn;
+    engine->useItemFn = useItemFn;
+    interface->window = textWindow;
+    interface->height = interfaceHeight;
+    engine->parentWindow = parentWindow;
+    engine->mainWindow = graphicsWindow;
+    engine->renderMode = RENDER_COLOR;
+    engine->moveMode = MOVE_MODE_REGULAR;
+    engine->gameState = STATE_PLAYING;
 
-  return engine;
-}
+    return engine;
+  }
 
-void renderFrame(ENGINE *engine){
-  // werase(engine->mainWindow);
-  wclear(engine->mainWindow);
-  raycast(engine->player, engine->map, engine->mainWindow, engine->cols, engine->rows, engine->renderMode);
-  box(engine->mainWindow, 0, 0);
-  wrefresh(engine->mainWindow);
-}
+  void renderFrame(ENGINE *engine){
+    // werase(engine->mainWindow);
+    wclear(engine->mainWindow);
+    raycast(engine->player, engine->map, engine->mainWindow, engine->cols, engine->rows, engine->renderMode);
+    box(engine->mainWindow, 0, 0);
+    wrefresh(engine->mainWindow);
+  }
 
-void walkAnimation(ENGINE *engine, short direction){
-  double moveSpeed = .1;
-  double distance = 1.0;
-  double finalX = engine->player-> x + cos(engine->player->direction) * distance * direction;
-  double finalY = engine->player-> y + sin(engine->player->direction) * distance * direction;
-  char nextPosition = getPositionInMap(engine->map, (int) round(finalY), (int) round(finalX));
-  ///if ( !(nextPosition == MAP_OPEN_SPACE || nextPosition > MAP_MARKER_MIN))
-  //  return;
-  if (engine->moveMode == MOVE_MODE_REGULAR) {
-    for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
+  void walkAnimation(ENGINE *engine, short direction){
+    double moveSpeed = .1;
+    double distance = 1.0;
+    double finalX = engine->player-> x + cos(engine->player->direction) * distance * direction;
+    double finalY = engine->player-> y + sin(engine->player->direction) * distance * direction;
+    char nextPosition = getPositionInMap(engine->map, (int) round(finalY), (int) round(finalX));
+    ///if ( !(nextPosition == MAP_OPEN_SPACE || nextPosition > MAP_MARKER_MIN))
+    //  return;
+    if (engine->moveMode == MOVE_MODE_REGULAR) {
+      for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
         walk(engine->player, moveSpeed, direction);
         renderFrame(engine);
         nanosleep(&FRAME_DELAY, NULL);
+      }
     }
+    engine->player->x = finalX;
+    engine->player->y = finalY;
   }
-  engine->player->x = finalX;
-  engine->player->y = finalY;
-}
 
-void rotationAnimation(ENGINE *engine, double radians, int direction){
-  double moveSpeed = 0.15;
-  double finalDirection = engine->player->direction + (radians * direction);
-  //make sure to keep the camera plane up to date. It needs to be perpendicular to the direction
-  double finalCameraX = engine->player->cameraPlaneX * cos(radians * direction) - engine->player->cameraPlaneY * sin(radians * direction);
-  double finalCameraY = engine->player->cameraPlaneX * sin(radians * direction) +  engine->player->cameraPlaneY * cos(radians * direction);
+  void rotationAnimation(ENGINE *engine, double radians, int direction){
+    double moveSpeed = 0.15;
+    double finalDirection = engine->player->direction + (radians * direction);
+    //make sure to keep the camera plane up to date. It needs to be perpendicular to the direction
+    double finalCameraX = engine->player->cameraPlaneX * cos(radians * direction) - engine->player->cameraPlaneY * sin(radians * direction);
+    double finalCameraY = engine->player->cameraPlaneX * sin(radians * direction) +  engine->player->cameraPlaneY * cos(radians * direction);
 
-  if (engine->moveMode == MOVE_MODE_REGULAR) { 
-    for (double i=0; i < (int) floor(fabs(radians/moveSpeed)); i+=1){
+    if (engine->moveMode == MOVE_MODE_REGULAR) {
+      for (double i=0; i < (int) floor(fabs(radians/moveSpeed)); i+=1){
         rotate(engine->player, moveSpeed, direction);
         renderFrame(engine);
         nanosleep(&FRAME_DELAY, NULL);
+      }
     }
+    engine->player->direction = finalDirection;
+    engine->player->cameraPlaneX = finalCameraX;
+    engine->player->cameraPlaneY = finalCameraY;
   }
-  engine->player->direction = finalDirection;
-  engine->player->cameraPlaneX = finalCameraX;
-  engine->player->cameraPlaneY = finalCameraY;
-}
 
-void deathAnimation(ENGINE *engine) {
-  wclear(engine->mainWindow);
-  death(engine->mainWindow, engine->rows, engine->cols, engine->renderMode, "You have died. Game Over");
-  wrefresh(engine->mainWindow);
-}
+  void deathAnimation(ENGINE *engine) {
+    wclear(engine->mainWindow);
+    death(engine->mainWindow, engine->rows, engine->cols, engine->renderMode, "You have died. Game Over");
+    wrefresh(engine->mainWindow);
+  }
 
-void gameLoop(ENGINE *engine){
-  // this is required to prevent a 1 frame delay. No idea why
-  nodelay(stdscr, TRUE);
-  getch();
-  nodelay(stdscr, FALSE);
-  updateInterface(engine->interface);
-  renderFrame(engine);
+  void gameLoop(ENGINE *engine){
+    // this is required to prevent a 1 frame delay. No idea why
+    nodelay(stdscr, TRUE);
+    getch();
+    nodelay(stdscr, FALSE);
+    updateInterface(engine->interface);
+    renderFrame(engine);
 
-  while (engine->gameState != STATE_END){
-    if (engine->gameState == STATE_DEAD) {
+    while (engine->gameState != STATE_END){
+      if (engine->gameState == STATE_DEAD) {
         deathAnimation(engine);
         getch();
         engine->gameState = STATE_END;
         break;
-    }
-    char input = getch();
-    switch(input) {
-      case 'w':
+      }
+      char input = getch();
+      switch(input) {
+        case 'w':
         walkAnimation(engine, PLAYER_FORWARDS);
         engine->interactionFn(engine, INTERACTION_TYPE_WALK);
         break;
-      case 's':
+        case 's':
         walkAnimation(engine, PLAYER_BACKWARDS);
         engine->interactionFn(engine, INTERACTION_TYPE_WALK);
         break;
-      case 'a':
+        case 'a':
         rotationAnimation(engine, M_PI/2.0, PLAYER_COUNTER_CLOCKWISE);
         break;
-      case 'd':
+        case 'd':
         rotationAnimation(engine, M_PI/2.0, PLAYER_CLOCKWISE);
         break;
-      case 'l':
+        case 'l':
         engine->interactionFn(engine, INTERACTION_TYPE_LOOK);
         break;
-      case 't':
+        case 't':
         engine->interactionFn(engine, INTERACTION_TYPE_TALK);
         break;
-      case '1':
+        case '1':
         if (engine->interface->inventory[0] != NULL)
-            engine->useItemFn(engine, engine->interface->inventory[0], 0); 
+        engine->useItemFn(engine, engine->interface->inventory[0], 0);
         break;
-      case '2':
+        case '2':
         if (engine->interface->inventory[0] != NULL)
-            engine->useItemFn(engine, engine->interface->inventory[1], 1); 
+        engine->useItemFn(engine, engine->interface->inventory[1], 1);
         break;
-      case '?':
+        case '?':
         if (engine->renderMode == RENDER_COLOR)
-            engine->renderMode = RENDER_CHAR;
+        engine->renderMode = RENDER_CHAR;
         else
-            engine->renderMode = RENDER_COLOR;
+        engine->renderMode = RENDER_COLOR;
         break;
-      case '!':
+        case '!':
         if (engine->moveMode == MOVE_MODE_REGULAR)
-            engine->moveMode = MOVE_MODE_INSTANT;
+        engine->moveMode = MOVE_MODE_INSTANT;
         else
-            engine->moveMode = MOVE_MODE_REGULAR;
+        engine->moveMode = MOVE_MODE_REGULAR;
         break;
-      default:
+        default:
         break;
+      }
+      renderFrame(engine);
+      updateInterface(engine->interface);
     }
-    renderFrame(engine);
-    updateInterface(engine->interface);
   }
-}
 
-void shutdown(ENGINE *engine){
-  delwin(engine->interface->window);
-  delwin(engine->mainWindow);
-  delwin(engine->parentWindow);
-  free(engine->player);
-  free(engine->interface);
-  free(engine->map->map);
-  free(engine->map);
-  free(engine);
-  endwin();
-}
+  void shutdown(ENGINE *engine){
+    delwin(engine->interface->window);
+    delwin(engine->mainWindow);
+    delwin(engine->parentWindow);
+    free(engine->player);
+    free(engine->interface);
+    free(engine->map->map);
+    free(engine->map);
+    free(engine);
+    endwin();
+  }

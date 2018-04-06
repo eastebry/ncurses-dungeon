@@ -47,10 +47,10 @@ void readFlag() {
   fseek(pFile , 0 , SEEK_END);
   lSize = ftell(pFile);
   if (lSize > 1023)
-      lSize = 1023;
+  lSize = 1023;
   rewind (pFile);
   result = fread(&flag, 1, lSize, pFile);
-  flag[lSize] = '\0'; 
+  flag[lSize] = '\0';
   fclose (pFile);
 }
 
@@ -59,96 +59,96 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType){
   char marker = getPositionInMap(engine->map, engine->player->y, engine->player->x);
   switch (interactionType){
     case INTERACTION_TYPE_WALK:
-      if (marker == 'a'){
-        addMessage(engine->interface, "Immediately after entering, you hear a thunderous boom");
-        addMessage(engine->interface, "The wall ceiling behind you collapse into a pile of rubble");
-        addMessage(engine->interface, "You barely avoid the falling rock, but you are now trapped");
-      }
-      else if (marker == 'b')
-        addMessage(engine->interface, "The air here is thick and damp.");
-      else if (marker == 'c')
-        addMessage(engine->interface, "You feel a light breeze. This dungeon is large and cavernous.");
-      else if (marker == 'd'){
-        addMessage(engine->interface, "There is a skeleton lying on the ground. It has clearly been here for while.");
-        addMessage(engine->interface, "The bones of its fingers are curled around a piece of parchment.");
-        addMessage(engine->interface, "Press (L) to read the note.");
-      }
-      else if (marker == 'e'){
-        addMessage(engine->interface, "There is a another skeleton on the ground.");
-        addMessage(engine->interface, "There some paper lying on the ground next to it.");
-      }
-      else if (marker == 'f') {
-        addMessage(engine->interface, "You feel a cold breeze.");
-      }
-      else if (marker == 'g') {
-        addMessage(engine->interface, "This hallway is dark and constricting.");
-        addMessage(engine->interface, "You suddenly worry that you might never make it out.");
-      }
-      else if (marker == 'g') {
-        addMessage(engine->interface, "This hallway is dark and constricting.");
-        addMessage(engine->interface, "You suddenly worry that you might never make it out.");
-      }
-      else if (marker == 'i') {
-        addMessage(engine->interface, "You stare into room with three skeletons.");
-        addMessage(engine->interface, "Likely an exploration party that never made it out.");
-      }
-      else if (marker == 'j') {
-        addMessage(engine->interface, "These hallways meander aimlessly. You could easily get lost here.");
-      }
-      else if (marker == 'h') {
-        addMessage(engine->interface, "You stare into room with three corpses.");
-        addMessage(engine->interface, "Likely an exploration party that never made it out.");
-      }
-      else if (marker == 'p') {
-        addMessage(engine->interface, "There's an object lying on the ground.");
-      }
-      else if (marker == 'z') {
-        addMessage(engine->interface, "You've found the stairs leading deeping into the dungeon");
-	readFlag();
-        addMessage(engine->interface, &flag);
-      }
-      break;
+    if (marker == 'a'){
+      addMessage(engine->interface, "Immediately after entering, you hear a thunderous boom");
+      addMessage(engine->interface, "The wall ceiling behind you collapse into a pile of rubble");
+      addMessage(engine->interface, "You barely avoid the falling rock, but you are now trapped");
+    }
+    else if (marker == 'b')
+    addMessage(engine->interface, "The air here is thick and damp.");
+    else if (marker == 'c')
+    addMessage(engine->interface, "You feel a light breeze. This dungeon is large and cavernous.");
+    else if (marker == 'd'){
+      addMessage(engine->interface, "There is a skeleton lying on the ground. It has clearly been here for while.");
+      addMessage(engine->interface, "The bones of its fingers are curled around a piece of parchment.");
+      addMessage(engine->interface, "Press (L) to read the note.");
+    }
+    else if (marker == 'e'){
+      addMessage(engine->interface, "There is a another skeleton on the ground.");
+      addMessage(engine->interface, "There some paper lying on the ground next to it.");
+    }
+    else if (marker == 'f') {
+      addMessage(engine->interface, "You feel a cold breeze.");
+    }
+    else if (marker == 'g') {
+      addMessage(engine->interface, "This hallway is dark and constricting.");
+      addMessage(engine->interface, "You suddenly worry that you might never make it out.");
+    }
+    else if (marker == 'g') {
+      addMessage(engine->interface, "This hallway is dark and constricting.");
+      addMessage(engine->interface, "You suddenly worry that you might never make it out.");
+    }
+    else if (marker == 'i') {
+      addMessage(engine->interface, "You stare into room with three skeletons.");
+      addMessage(engine->interface, "Likely an exploration party that never made it out.");
+    }
+    else if (marker == 'j') {
+      addMessage(engine->interface, "These hallways meander aimlessly. You could easily get lost here.");
+    }
+    else if (marker == 'h') {
+      addMessage(engine->interface, "You stare into room with three corpses.");
+      addMessage(engine->interface, "Likely an exploration party that never made it out.");
+    }
+    else if (marker == 'p') {
+      addMessage(engine->interface, "There's an object lying on the ground.");
+    }
+    else if (marker == 'z') {
+      addMessage(engine->interface, "You've found the stairs leading deeping into the dungeon");
+      readFlag();
+      addMessage(engine->interface, &flag);
+    }
+    break;
     case INTERACTION_TYPE_LOOK:
-      if (marker == 'd') {
-        addMessage(engine->interface, "The note reads: I've been trapped in this maze for weeks.");
-        addMessage(engine->interface, "This dungeon is a labyrenth. I've expored every passageway ten times,");
-        addMessage(engine->interface, "but still can't find where I entered. I wish I had a map.");
-      }
-      else if (marker == 'e') {
-        addMessage(engine->interface, "The note reads: I ran into a another group of explorers today.");
-        addMessage(engine->interface, "They told me that some of the stone walls are more brittle than others");
-        addMessage(engine->interface, "and could be broken. No help to me. I can't tell any of these apart.");
-      }
-      else if (marker == 'f') {
-        addMessage(engine->interface, "You examine the walls for cracks, but find nothing. This rock seems solid");
-      }
-      else if (marker == 'i') {
-        addMessage(engine->interface, "You examine the corpses.");
-        addMessage(engine->interface, "You find nothing of value - they were probably already looted");
-      }
-      else if (marker == 'p'){
-        addMessage(engine->interface, "It appears to be mining tool. You pick it up");
-        addItem(engine->interface, "Feeble pickaxe");
-        setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
-      }
-      else
-        addMessage(engine->interface, "You are surrounded by rock and darkness. Nothing interesting here.");
-      break;
+    if (marker == 'd') {
+      addMessage(engine->interface, "The note reads: I've been trapped in this maze for weeks.");
+      addMessage(engine->interface, "This dungeon is a labyrenth. I've expored every passageway ten times,");
+      addMessage(engine->interface, "but still can't find where I entered. I wish I had a map.");
+    }
+    else if (marker == 'e') {
+      addMessage(engine->interface, "The note reads: I ran into a another group of explorers today.");
+      addMessage(engine->interface, "They told me that some of the stone walls are more brittle than others");
+      addMessage(engine->interface, "and could be broken. No help to me. I can't tell any of these apart.");
+    }
+    else if (marker == 'f') {
+      addMessage(engine->interface, "You examine the walls for cracks, but find nothing. This rock seems solid");
+    }
+    else if (marker == 'i') {
+      addMessage(engine->interface, "You examine the corpses.");
+      addMessage(engine->interface, "You find nothing of value - they were probably already looted");
+    }
+    else if (marker == 'p'){
+      addMessage(engine->interface, "It appears to be mining tool. You pick it up");
+      addItem(engine->interface, "Feeble pickaxe");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    else
+    addMessage(engine->interface, "You are surrounded by rock and darkness. Nothing interesting here.");
+    break;
     case INTERACTION_TYPE_TALK:
-      if (marker == 'd'){
-        addMessage(engine->interface, "You ask the skeleton for directions, ");
-        addMessage(engine->interface, "but are unsurprised when it does not respond.");
-        addMessage(engine->interface, "You ask yourself why you tried to ask a corpse for directions.");
-      }
-      else if (marker == 'p') {
-        addMessage(engine->interface, "You try talking to the object, but hear only silence.");
-        addMessage(engine->interface, "It appears to be dead, inanimate, or at least not responsive");
-      }
-      else
-        addMessage(engine->interface, "You start speaking but trail off. No one is around to hear.");
-      break;
+    if (marker == 'd'){
+      addMessage(engine->interface, "You ask the skeleton for directions, ");
+      addMessage(engine->interface, "but are unsurprised when it does not respond.");
+      addMessage(engine->interface, "You ask yourself why you tried to ask a corpse for directions.");
+    }
+    else if (marker == 'p') {
+      addMessage(engine->interface, "You try talking to the object, but hear only silence.");
+      addMessage(engine->interface, "It appears to be dead, inanimate, or at least not responsive");
+    }
+    else
+    addMessage(engine->interface, "You start speaking but trail off. No one is around to hear.");
+    break;
     default:
-      break;
+    break;
   }
 }
 
@@ -160,32 +160,32 @@ void useItem(ENGINE *engine, char * item, int itemIndex) {
     char position = getPositionInMap(engine->map, forwardY, forwardX);
     switch(position) {
       case MAP_OPEN_SPACE:
-        addMessage(engine->interface, "You swing the pickaxe. It strikes nothing.");
-        break;
+      addMessage(engine->interface, "You swing the pickaxe. It strikes nothing.");
+      break;
       case 'F':
-        addMessage(engine->interface, "You swing the pickaxe against the rock. It crumbles apart");
-        setPositionInMap(engine->map, forwardY, forwardX, MAP_OPEN_SPACE);
-        break;
+      addMessage(engine->interface, "You swing the pickaxe against the rock. It crumbles apart");
+      setPositionInMap(engine->map, forwardY, forwardX, MAP_OPEN_SPACE);
+      break;
       default:
-        // If we hit a wall
-        if (position < MAP_MARKER_MIN) {
-            addMessage(engine->interface, "You swing the pickaxe, and it breaks");
-            addMessage(engine->interface, "Well that is a bummer");
-            removeItem(engine->interface, itemIndex);
-        }
-        break;
+      // If we hit a wall
+      if (position < MAP_MARKER_MIN) {
+        addMessage(engine->interface, "You swing the pickaxe, and it breaks");
+        addMessage(engine->interface, "Well that is a bummer");
+        removeItem(engine->interface, itemIndex);
+      }
+      break;
     }
   }
 }
 
 void clean(){
-    shutdown(engine);
+  shutdown(engine);
 }
 
 int main(){
-    memset(flag, 0, sizeof flag);  
-    engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction, &useItem); 
-    atexit(clean);
-    signal(SIGTERM, exit);
-    gameLoop(engine);
+  memset(flag, 0, sizeof flag);
+  engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction, &useItem);
+  atexit(clean);
+  signal(SIGTERM, exit);
+  gameLoop(engine);
 }

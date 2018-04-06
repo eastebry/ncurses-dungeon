@@ -29,13 +29,13 @@ void updateInterface(struct Interface *interface){
     wattroff(window, A_BOLD);
     mvwprintw(window, 2, 37, "1) ");
     if (interface->inventory[0] != NULL) {
-        mvwprintw(window, 2, 40, interface->inventory[0]);
+      mvwprintw(window, 2, 40, interface->inventory[0]);
     }
     mvwprintw(window, 3, 37, "2) ");
     if (interface->inventory[1] != NULL) {
-        mvwprintw(window, 3, 40, interface->inventory[1]);
+      mvwprintw(window, 3, 40, interface->inventory[1]);
     }
-  } 
+  }
   wrefresh(window);
 }
 
@@ -52,17 +52,17 @@ void addMessage(struct Interface *interface, char *message) {
 }
 
 void addItem(struct Interface *interface, char *item) {
-    // This would be a good place to put a vulnerability
-    for (int i = 0; i<INTERFACE_INVENTORY_SIZE; i++) {
-        if (interface->inventory[i] == NULL) {
-            interface->inventory[i] = item;
-            return;
-        }
+  // This would be a good place to put a vulnerability
+  for (int i = 0; i<INTERFACE_INVENTORY_SIZE; i++) {
+    if (interface->inventory[i] == NULL) {
+      interface->inventory[i] = item;
+      return;
     }
+  }
 }
 
 void removeItem(struct Interface *interface, int index) {
-    interface->inventory[index] = NULL;
+  interface->inventory[index] = NULL;
 }
 
 void clearMessage(struct Interface *interface){

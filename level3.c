@@ -50,7 +50,7 @@ char * readFlag() {
   char * f = (char *) malloc(sizeof(char) * lSize + 1);
   rewind (pFile);
   result = fread(f, 1, lSize, pFile);
-  f[lSize] = '\0'; 
+  f[lSize] = '\0';
   fclose (pFile);
   return f;
 }
@@ -60,34 +60,34 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType) {
   char marker = getPositionInMap(engine->map, engine->player->y, engine->player->x);
   switch (interactionType){
     case INTERACTION_TYPE_WALK:
-      if (marker == 's') {
-          addMessage(engine->interface, "Suddenly giant spikes emerge from the floor");
-          addMessage(engine->interface, "It looks like this is the end for you...");
-          engine->gameState = STATE_DEAD;
-      }
-      else if (marker == 'a') {
-         
-      }
-      else {
-        char * pos = (char *) malloc(30 * sizeof(char));
-        sprintf(pos, "Position: 0x%x", &engine->map->map[(int)engine->player->y * engine->map->size + (int)engine->player->x]);
-        addMessage(engine->interface, pos);
-        char * map = (char *) malloc(30 * sizeof(char));
-        sprintf(map, "Map start: 0x%x", engine->map->map);
-        addMessage(engine->interface, map);
-        char * position = (char *) malloc(30 * sizeof(char));
-        sprintf(position, "Flag location: 0x%x", flag);
-        addMessage(engine->interface, position);
-      }
-      break;
+    if (marker == 's') {
+      addMessage(engine->interface, "Suddenly giant spikes emerge from the floor");
+      addMessage(engine->interface, "It looks like this is the end for you...");
+      engine->gameState = STATE_DEAD;
+    }
+    else if (marker == 'a') {
+
+    }
+    else {
+      char * pos = (char *) malloc(30 * sizeof(char));
+      sprintf(pos, "Position: 0x%x", &engine->map->map[(int)engine->player->y * engine->map->size + (int)engine->player->x]);
+      addMessage(engine->interface, pos);
+      char * map = (char *) malloc(30 * sizeof(char));
+      sprintf(map, "Map start: 0x%x", engine->map->map);
+      addMessage(engine->interface, map);
+      char * position = (char *) malloc(30 * sizeof(char));
+      sprintf(position, "Flag location: 0x%x", flag);
+      addMessage(engine->interface, position);
+    }
+    break;
     case INTERACTION_TYPE_LOOK:
-        addMessage(engine->interface, "You are surrounded by rock and darkness. Nothing interesting here.");
-      break;
+    addMessage(engine->interface, "You are surrounded by rock and darkness. Nothing interesting here.");
+    break;
     case INTERACTION_TYPE_TALK:
-        addMessage(engine->interface, "Its so empty here. You wonder if anyone will hear your voice again.");
-      break;
+    addMessage(engine->interface, "Its so empty here. You wonder if anyone will hear your voice again.");
+    break;
     default:
-      break;
+    break;
   }
 }
 
@@ -95,14 +95,14 @@ void useItem(ENGINE *engine, char * item, int itemIndex) {
 }
 
 void clean(){
-    free(flag);
-    shutdown(engine);
+  free(flag);
+  shutdown(engine);
 }
 
 int main(){
-    flag = readFlag();
-    engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction, &useItem); 
-    atexit(clean);
-    signal(SIGTERM, exit);
-    gameLoop(engine);
+  flag = readFlag();
+  engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction, &useItem);
+  atexit(clean);
+  signal(SIGTERM, exit);
+  gameLoop(engine);
 }
