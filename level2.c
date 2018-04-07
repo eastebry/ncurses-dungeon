@@ -14,7 +14,7 @@
 #define MAX_SWITCH 'j'
 
 const int mapSize = 20;
-const char map1[] = ""\
+const char map2[] = ""\
 "**********E*********"\
 "*      XX zXX      *"\
 "*       XXXX       *"\
@@ -35,11 +35,12 @@ const char map1[] = ""\
 "*&X&X&       X&X&X&*"\
 "*&&&&&&&&&&&&&&&&&&&";
 
-unsigned char flag[1024];
+char * flag = NULL;
+char * map;
 ENGINE * engine;
 unsigned char switches[MAX_SWITCH - MIN_SWITCH + 1 ];
 
-void readFlag() {
+char * readFlag() {
   FILE * pFile;
   long lSize;
   size_t result;
@@ -47,12 +48,12 @@ void readFlag() {
   pFile = fopen("./flag", "rb" );
   fseek(pFile , 0 , SEEK_END);
   lSize = ftell(pFile);
-  if (lSize > 1023)
-  lSize = 1023;
+  char * f = (char *) malloc(sizeof(char) * lSize + 1);
   rewind (pFile);
-  result = fread(&flag, 1, lSize, pFile);
-  flag[lSize] = '\0';
+  result = fread(f, 1, lSize, pFile);
+  f[lSize] = '\0';
   fclose (pFile);
+  return f;
 }
 
 bool unlock() {
@@ -110,7 +111,7 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType) {
     }
     else if (marker == 'z') {
       addMessage(engine->interface, "You've found the stairs leading deeping into the dungeon");
-      readFlag();
+      flag = readFlag();
       addMessage(engine->interface, &flag);
     }
     break;
@@ -150,13 +151,18 @@ void useItem(ENGINE *engine, char * item, int itemIndex) {
 }
 
 void clean(){
+  if (flag != NULL)
+    free(flag);
+  free(map);
   shutdown(engine);
 }
 
 int main(){
-  memset(flag, 0, sizeof flag);
   memset(switches, 0, sizeof switches);
-  engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction, &useItem);
+  int s = strlen(map2) + 1;
+  map = (char *) calloc(s, sizeof(char));
+  strncpy(map, map2, s);
+  engine = createEngine(ROWS, COLS, map, mapSize, 1, 1, 6, &checkInteraction, &useItem);
   atexit(clean);
   signal(SIGTERM, exit);
   gameLoop(engine);

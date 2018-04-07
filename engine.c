@@ -14,7 +14,7 @@ const struct timespec FRAME_DELAY = {0, 90000000L};
 ENGINE * createEngine(
   int rows,
   int cols,
-  const char *mapStr,
+  char *mapStr,
   int mapSize,
   int playerStartR,
   int playerStartC,
@@ -45,8 +45,7 @@ ENGINE * createEngine(
     struct Interface * interface = (struct Interface *) calloc(1, sizeof(struct Interface));
 
     struct Map *map =  calloc(1, sizeof(struct Map));
-    map->map = (char *) calloc(1, sizeof(char) * (strlen(mapStr) + 1));
-    strcpy(map->map, mapStr);
+    map->map = mapStr;
     map->size = mapSize;
 
     ENGINE * engine = (ENGINE * ) malloc(sizeof(ENGINE));
@@ -91,7 +90,6 @@ void walkAnimation(ENGINE *engine, short direction){
   double distance = 1.0;
   double finalX = engine->player-> x + cos(engine->player->direction) * distance * direction;
   double finalY = engine->player-> y + sin(engine->player->direction) * distance * direction;
-  char nextPosition = getPositionInMap(engine->map, (int) round(finalY), (int) round(finalX));
   if (engine->moveMode == MOVE_MODE_REGULAR) {
     for (double i = 0; i <(int) floor(distance/moveSpeed); i+=1){
       walk(engine->player, moveSpeed, direction);
@@ -203,7 +201,6 @@ void shutdown(ENGINE *engine){
   delwin(engine->parentWindow);
   free(engine->player);
   free(engine->interface);
-  free(engine->map->map);
   free(engine->map);
   free(engine);
   endwin();

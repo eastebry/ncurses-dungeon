@@ -13,34 +13,34 @@
 #define MAX_STEPS 1024 
 #define NULL_STEP 255
 
-const int mapSize = 20;
-const char map1[] = ""\
-"- ------------------"\
+#define MAP_SIZE 20
+const char map3[] = ""\
+"--------------------"\
+"*                  *"\
 "*                  *"\
 "*   &XX&XX XX XX-  *"\
 "*   &EEEEE EE EE-  *"\
-"*   &E   E EE  E-  *"\
-"*   &E   E EE  E-  *"\
-"*   &E   E EE  E-  *"\
-"*   &E   E EE  E-  *"\
-"*   &E   E EE  E-  *"\
-"*   &E   E EE  E-  *"\
-"*   &&   EaEE  E-  *"\
-"*   &    E EE  E-  *"\
-"*   &    E EE  E-XX*"
+"*X  &E   E EE EE-  *"\
+"*X  &E   E EE EE-  *"\
+"*   &E   E EE EE-  *"\
+"*   &E   E EE EE-  *"\
+"*  *&E   E EE EE-  *"\
+"****&E   E EE EE-  *"\
+"*   &&   EaEE EE-  *"\
+"*   &    E EE EE-  *"\
+"*   &    E EE EE-XX*"\
 "*   & &XXEEEXEEEEEX*"\
 "*     XXXXXXXXXXXXX*"\
-"*                  *"\
 "*                  *"\
 "*                  *"\
 "*                  *"\
 "*&&&&&&&&&&&&&&&&&&&";
 
 ENGINE * engine;
-char *flag;
+char *flag = NULL;
+char map[MAP_SIZE * MAP_SIZE + 1];
 unsigned char steps[MAX_STEPS];
 unsigned int stepIndex = -1;
-
 
 char * readFlag() {
   FILE * pFile;
@@ -159,14 +159,17 @@ void useItem(ENGINE *engine, char * item, int itemIndex) {
 }
 
 void clean(){
-  free(flag);
+  if (flag != NULL)
+    free(flag);
   shutdown(engine);
 }
 
 int main(){
   flag = readFlag();
   memset(steps, NULL_STEP, sizeof(steps));
-  engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction, &useItem);
+  int s = strlen(map3) + 1;
+  strncpy(map, map3, s);
+  engine = createEngine(ROWS, COLS, map, MAP_SIZE, 1, 1, 6, &checkInteraction, &useItem);
   atexit(clean);
   signal(SIGTERM, exit);
   gameLoop(engine);

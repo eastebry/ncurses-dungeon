@@ -50,7 +50,7 @@ typedef void (*USE_ITEM_FUNCTION)(ENGINE *, char *item, int itemIndex);
 
 // create a new game engine
 ENGINE * createEngine(int rows, int cols,
-  const char *mapStr,
+  char *mapStr,
   int mapSize, int playerStartR, int playerStartC,
   int interfaceHeight,
   INTERACTION_FUNCTION interactionFn,

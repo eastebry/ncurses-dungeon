@@ -35,10 +35,11 @@ const char map1[] = ""\
 "XzX&&FFFF   - -    X"\
 "*E******************";
 
-char flag[1024];
+char *map;
+char *flag = NULL;
 ENGINE * engine;
 
-void readFlag() {
+char * readFlag() {
   FILE * pFile;
   long lSize;
   size_t result;
@@ -46,12 +47,12 @@ void readFlag() {
   pFile = fopen("./flag", "rb" );
   fseek(pFile , 0 , SEEK_END);
   lSize = ftell(pFile);
-  if (lSize > 1023)
-  lSize = 1023;
+  char * f = (char *) malloc(sizeof(char) * lSize + 1);
   rewind (pFile);
-  result = fread(&flag, 1, lSize, pFile);
-  flag[lSize] = '\0';
+  result = fread(f, 1, lSize, pFile);
+  f[lSize] = '\0';
   fclose (pFile);
+  return f;
 }
 
 void checkInteraction(ENGINE *engine, INTERACTION interactionType){
@@ -105,8 +106,8 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType){
     }
     else if (marker == 'z') {
       addMessage(engine->interface, "You've found the stairs leading deeping into the dungeon");
-      readFlag();
-      addMessage(engine->interface, &flag);
+      flag = readFlag();
+      addMessage(engine->interface, flag);
     }
     break;
     case INTERACTION_TYPE_LOOK:
@@ -181,11 +182,16 @@ void useItem(ENGINE *engine, char * item, int itemIndex) {
 
 void clean(){
   shutdown(engine);
+  free(map);
+  if (flag != NULL)
+    free(flag);
 }
 
 int main(){
-  memset(flag, 0, sizeof flag);
-  engine = createEngine(ROWS, COLS, &map1, mapSize, 1, 1, 6, &checkInteraction, &useItem);
+  int s = strlen(map1) + 1;
+  map = (char *) calloc(s, sizeof(char));
+  strncpy(map, map1, s);
+  engine = createEngine(ROWS, COLS, map, mapSize, 2, 1, 6, &checkInteraction, &useItem);
   atexit(clean);
   signal(SIGTERM, exit);
   gameLoop(engine);
