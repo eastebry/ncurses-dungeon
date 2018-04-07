@@ -73,7 +73,8 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType) {
   clearMessage(engine->interface);
   char marker = getPositionInMap(engine->map, engine->player->y, engine->player->x);
   switch (interactionType){
-    case INTERACTION_TYPE_WALK:
+    case INTERACTION_TYPE_WALK_FORWARD:
+    case INTERACTION_TYPE_WALK_BACK:
     if (marker >= MIN_SWITCH && marker <= MAX_SWITCH){
       if (marker == 'b')
       addMessage(engine->interface, "As you step forward, you hear a mechanical click.");

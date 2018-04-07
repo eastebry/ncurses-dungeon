@@ -58,7 +58,8 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType){
   clearMessage(engine->interface);
   char marker = getPositionInMap(engine->map, engine->player->y, engine->player->x);
   switch (interactionType){
-    case INTERACTION_TYPE_WALK:
+    case INTERACTION_TYPE_WALK_FORWARD:
+    case INTERACTION_TYPE_WALK_BACK:
     if (marker == 'a'){
       addMessage(engine->interface, "Immediately after entering, you hear a thunderous boom");
       addMessage(engine->interface, "The wall ceiling behind you collapse into a pile of rubble");

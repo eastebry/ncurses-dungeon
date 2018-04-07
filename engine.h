@@ -8,10 +8,13 @@ typedef unsigned short GAME_STATE;
 
 typedef unsigned short INTERACTION;
 
-#define INTERACTION_TYPE_WALK 0
-#define INTERACTION_TYPE_LOOK 1
-#define INTERACTION_TYPE_TALK 2
-#define INTERACTION_TYPE_ITEM 3
+#define INTERACTION_TYPE_WALK_FORWARD 0
+#define INTERACTION_TYPE_WALK_BACK 1
+#define INTERACTION_TYPE_TURN_LEFT 2
+#define INTERACTION_TYPE_TURN_RIGHT 3
+#define INTERACTION_TYPE_LOOK 4
+#define INTERACTION_TYPE_TALK 5
+#define INTERACTION_TYPE_ITEM 6
 
 #include <ncurses.h>
 #include <time.h>
@@ -56,6 +59,10 @@ ENGINE * createEngine(int rows, int cols,
 
 // run the game loop
 void gameLoop(ENGINE *engine);
+
+// movement
+void rotationAnimation(ENGINE *engine, double radians, int direction);
+void walkAnimation(ENGINE *engine, short direction);
 
 // shutdown the game
 void shutdown(ENGINE *engine);
