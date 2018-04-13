@@ -1,7 +1,7 @@
 TARGET = level1 level2 level3
 LIBS = -lm -lcurses
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -Wall
 
 .PHONY: default
 .PRECIOUS: $(TARGET) $(OBJECTS)
