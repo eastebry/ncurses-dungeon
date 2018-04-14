@@ -11,7 +11,7 @@
 #define ROWS 40
 #define COLS 100
 
-const int mapSize = 20;
+#define MAP_SIZE 20
 const char map1[] = ""\
 "********************"\
 "X  ab c dd&     *  X"\
@@ -22,18 +22,20 @@ const char map1[] = ""\
 "X     **pX X    *  X"\
 "X  &  ** X&&&&&&&  X"\
 "X  &              -X"\
-"X  ---FF&& *****   X"\
+"X  -----&& *****   X"\
 "X        X     &X  X"\
-"X--F&  * XX&&&j&   X"\
+"X---&  * XX&&&j&   X"\
 "-   &      &       X"\
-"-F--------------F--X"\
-"Xff    gggXXF**   FX"\
-"X---------F   *   FX"\
-"XFF    &  XF-F--F-*X"\
+"-------------------X"\
+"Xff    gggXX-**   -X"\
+"X----------   *   -X"\
+"X--    &  X-------*X"\
 "X  &  &&    &    XXX"\
-"X  &&FF&&--F-F-F---X"\
-"XzX&&FFFF   - -    X"\
+"X  &&--&&----------X"\
+"XzX&&----   - -    X"\
 "*E******************";
+
+const unsigned char map2[] = "\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xc1\xb9\xb9\xf8\xfb\xb9\xfa\xb9\xfd\xfd\xbf\xb9\xb9\xb9\xb9\xb9\xb3\xb9\xb9\xc1\xc1\xb3\xb3\xb3\xb9\xb3\xb3\xb9\xb9\xfd\xbf\xb9\xb9\xb9\xb9\xb9\xf0\xb9\xb9\xc1\xc1\xfc\xfc\xb9\xb4\xb4\xb3\xb9\xb9\xb4\xb4\xb4\xf0\xf0\xb4\xb4\xb3\xb9\xb9\xc1\xc1\xfc\xfc\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb3\xb9\xb9\xc1\xc1\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb9\xc1\xc1\xc1\xc1\xb9\xb9\xc1\xb3\xb9\xb9\xc1\xc1\xb9\xb9\xb9\xb9\xb9\xb3\xb3\xe9\xc1\xb9\xc1\xb9\xb9\xb9\xb9\xb3\xb9\xb9\xc1\xc1\xb9\xb9\xbf\xb9\xb9\xb3\xb3\xb9\xc1\xbf\xbf\xbf\xbf\xbf\xbf\xbf\xb9\xb9\xc1\xc1\xb9\xb9\xbf\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb4\xc1\xc1\xb9\xb9\xb4\xb4\xb4\xdf\xdf\xbf\xbf\xb9\xb3\xb3\xb3\xb3\xb3\xb9\xb9\xb9\xc1\xc1\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xc1\xb9\xb9\xb9\xb9\xb9\xbf\xc1\xb9\xb9\xc1\xc1\xb4\xb4\xdf\xbf\xb9\xb9\xb3\xb9\xc1\xc1\xbf\xbf\xbf\xf3\xbf\xb9\xb9\xb9\xc1\xb4\xb9\xb9\xb9\xbf\xb9\xb9\xb9\xb9\xb9\xb9\xbf\xb9\xb9\xb9\xb9\xb9\xb9\xb9\xc1\xb4\xdf\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xdf\xb4\xb4\xc1\xc1\xff\xff\xb9\xb9\xb9\xb9\xfe\xfe\xfe\xc1\xc1\xdf\xb3\xb3\xb9\xb9\xb9\xdf\xc1\xc1\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xb4\xdf\xb9\xb9\xb9\xb3\xb9\xb9\xb9\xdf\xc1\xc1\xdf\xdf\xb9\xb9\xb9\xb9\xbf\xb9\xb9\xc1\xdf\xb4\xdf\xb4\xb4\xdf\xb4\xb3\xc1\xc1\xb9\xb9\xbf\xb9\xb9\xbf\xbf\xb9\xb9\xb9\xb9\xbf\xb9\xb9\xb9\xb9\xc1\xc1\xc1\xc1\xb9\xb9\xbf\xbf\xdf\xdf\xbf\xbf\xb4\xb4\xdf\xb4\xdf\xb4\xdf\xb4\xb4\xb4\xc1\xc1\xe3\xc1\xbf\xbf\xdf\xdf\xdf\xdf\xb9\xb9\xb9\xb4\xb9\xb4\xb9\xb9\xb9\xb9\xc1\xb3\xdc\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3\xb3";
 
 char *map;
 char *flag = NULL;
@@ -160,20 +162,22 @@ void useItem(ENGINE *engine, char * item, int itemIndex) {
     int forwardX = round(engine->player-> x + cos(engine->player->direction) * PLAYER_FORWARDS);
     int forwardY = round(engine->player-> y + sin(engine->player->direction) * PLAYER_FORWARDS);
     char position = getPositionInMap(engine->map, forwardY, forwardX);
+    unsigned char p2 = map2[forwardY * MAP_SIZE + forwardX];
     switch(position) {
       case MAP_OPEN_SPACE:
       addMessage(engine->interface, "You swing the pickaxe. It strikes nothing.");
       break;
-      case 'F':
-      addMessage(engine->interface, "You swing the pickaxe against the rock. It crumbles apart");
-      setPositionInMap(engine->map, forwardY, forwardX, MAP_OPEN_SPACE);
-      break;
       default:
-      // If we hit a wall
+      // If we hit a wall or a marker
       if (position < MAP_MARKER_MIN) {
+        if ((position ^ p2 ^ 0x99) != 0) {
+          addMessage(engine->interface, "You swing the pickaxe against the rock. The rock crumbles apart");
+          setPositionInMap(engine->map, forwardY, forwardX, MAP_OPEN_SPACE);
+        } else {
         addMessage(engine->interface, "You swing the pickaxe, and it breaks");
         addMessage(engine->interface, "Well that is a bummer");
         removeItem(engine->interface, itemIndex);
+        }
       }
       break;
     }
@@ -191,7 +195,7 @@ int main(){
   int s = strlen(map1) + 1;
   map = (char *) calloc(s, sizeof(char));
   strncpy(map, map1, s);
-  engine = createEngine(ROWS, COLS, map, mapSize, 2, 1, 6, &checkInteraction, &useItem);
+  engine = createEngine(ROWS, COLS, map, MAP_SIZE, 2, 1, 6, &checkInteraction, &useItem);
   atexit(clean);
   signal(SIGTERM, exit);
   gameLoop(engine);

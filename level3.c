@@ -10,39 +10,37 @@
 
 #define ROWS 40
 #define COLS 100
-#define MAX_STEPS 1024 
+#define MAX_STEPS 100
 #define NULL_STEP 255
 
 #define MAP_SIZE 20
 const char map3[] = ""\
 "--------------------"\
-"*                  *"\
-"*                  *"\
-"*   &XX&XX XX XX-  *"\
-"*   &EEEEE EE EE-  *"\
-"*X  &E   E EE EE-  *"\
-"*X  &E   E EE EE-  *"\
-"*   &E   E EE EE-  *"\
-"*   &E   E EE EE-  *"\
-"*  *&E   E EE EE-  *"\
-"****&E   E EE EE-  *"\
-"*   &&   EaEE EE-  *"\
-"*   &    E EE EE-  *"\
-"*   &    E EE EE-XX*"\
-"*   & &XXEEEXEEEEEX*"\
-"*     XXXXXXXXXXXXX*"\
-"*                  *"\
-"*                  *"\
-"*                  *"\
+"*   s   X   o      *"\
+"*   s      XXnXX   *"\
+"*XXa&XX&XXpXX XX-ss*"\
+"*s  &EEEEE EEmEE-Xs*"\
+"*Xsb&E   E EE EE-ss*"\
+"*X  &E   EqEElEE-ss*"\
+"*   &E   E EE EE- &*"\
+"*c&&&E   E EEkEE- s*"\
+"*  *&E   EzEE EE-  *"\
+"* **&E   E EE EE-X *"\
+"* ss&&   EEEEjEE-  *"\
+"*d  && &&&&&& &&& -*"\
+"*X   *s*   i   s*  *"\
+"*---e- -h   --sss  *"\
+"*&&  X X XXXXXXXXXX*"\
+"*&& f   g ssssssss *"\
+"* --------         *"\
+"*  sssssss         *"\
 "*&&&&&&&&&&&&&&&&&&&";
 
 ENGINE * engine;
-char *flag = NULL;
-char map[MAP_SIZE * MAP_SIZE + 1];
 unsigned char steps[MAX_STEPS];
 unsigned int stepIndex = -1;
 
-char * readFlag() {
+void readFlag(char *buffer) {
   FILE * pFile;
   long lSize;
   size_t result;
@@ -50,12 +48,10 @@ char * readFlag() {
   pFile = fopen("./flag", "rb" );
   fseek(pFile , 0 , SEEK_END);
   lSize = ftell(pFile);
-  char * f = (char *) malloc(sizeof(char) * lSize + 1);
   rewind (pFile);
-  result = fread(f, 1, lSize, pFile);
-  f[lSize] = '\0';
+  result = fread(buffer, 1, lSize, pFile);
+  buffer[lSize] = '\0';
   fclose (pFile);
-  return f;
 }
 
 bool hasHourglass(ENGINE *engine){
@@ -104,37 +100,86 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType) {
   switch (interactionType){
     case INTERACTION_TYPE_WALK_FORWARD:
     case INTERACTION_TYPE_WALK_BACK:
+    if (marker == 'a') {
+      addMessage(engine->interface, "You hear a thundering voice...");
+      addMessage(engine->interface, "\"Who dares to enter my temple?\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'b') {
+      addMessage(engine->interface, "\"What is it you seek, traveler?\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'c') {
+      addMessage(engine->interface, "\"Is it wealth you seek?\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'd') {
+      addMessage(engine->interface, "\"You will find none here.\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'e') {
+      addMessage(engine->interface, "\"Turn back!!\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'f') {
+      addMessage(engine->interface, "\"There is nothing for you here!\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'g') {
+      addMessage(engine->interface, "\"Leave this place at once!\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'h') {
+      addMessage(engine->interface, "\"You are persistent... what could it be that you desire?\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'i') {
+      addMessage(engine->interface, "\"Turn back! Before it is too late!\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'j') {
+      addMessage(engine->interface, "\"Careful, one misstep and that will be the end of you.\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'k') {
+      addMessage(engine->interface, "\"Ah... I know what it is that you seek.\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'l') {
+      addMessage(engine->interface, "\"You will be dissapointed...\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'm') {
+      addMessage(engine->interface, "\"There are no answers here...\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'o') {
+      addMessage(engine->interface, "\"You may never make it out of this maze\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'p') {
+      addMessage(engine->interface, "\"The item you seek is not here.\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
+    if (marker == 'q') {
+      addMessage(engine->interface, "\"But perhaps you will find something of use.\"");
+      setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
+    }
     if (marker == 's') {
       addMessage(engine->interface, "Suddenly giant spikes emerge from the floor");
       addMessage(engine->interface, "It looks like this is the end for you...");
       engine->gameState = STATE_DEAD;
       return;
     }
-    else if (marker == 'a') {
+    else if (marker == 'z') {
       addMessage(engine->interface, "There is an item on a pedestal next to you");
       addMessage(engine->interface, "It appears to be some sort of hourglass");
       addMessage(engine->interface, "It looks ornate and ancient");
     }
-    else {
-      /*
-      char * pos = (char *) malloc(30 * sizeof(char));
-      sprintf(pos, "Position: 0x%x", &engine->map->map[(int)engine->player->y * engine->map->size + (int)engine->player->x]);
-      addMessage(engine->interface, pos);
-      char * map = (char *) malloc(30 * sizeof(char));
-      sprintf(map, "Map start: 0x%x", engine->map->map);
-      addMessage(engine->interface, map);
-      char * position = (char *) malloc(30 * sizeof(char));
-      sprintf(position, "Flag location: 0x%x", flag);
-      addMessage(engine->interface, position);
-      */
-    }
     break;
     case INTERACTION_TYPE_LOOK:
-    if (marker == 'a') {
+    if (marker == 'z') {
         addMessage(engine->interface, "You pick up the hourglass.");
-        addMessage(engine->interface, "Out of nowhere, you hear a thundering voice...");
-        // TODO something related to this
-        addMessage(engine->interface, "\"Cursed is he who holds the hourglass! Your footsteps are numbered!\"");
         addItem(engine->interface, "Sands of time");
         setPositionInMap(engine->map, engine->player->y, engine->player->x, MAP_OPEN_SPACE);
     }
@@ -159,14 +204,15 @@ void useItem(ENGINE *engine, char * item, int itemIndex) {
 }
 
 void clean(){
-  if (flag != NULL)
-    free(flag);
   shutdown(engine);
 }
 
 int main(){
-  flag = readFlag();
   memset(steps, NULL_STEP, sizeof(steps));
+  char buffer[50];
+  memset(buffer, 0x39, sizeof(buffer));
+  readFlag(buffer);
+  char map[MAP_SIZE * MAP_SIZE + 1];
   int s = strlen(map3) + 1;
   strncpy(map, map3, s);
   engine = createEngine(ROWS, COLS, map, MAP_SIZE, 1, 1, 6, &checkInteraction, &useItem);

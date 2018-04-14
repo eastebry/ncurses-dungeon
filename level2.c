@@ -112,7 +112,7 @@ void checkInteraction(ENGINE *engine, INTERACTION interactionType) {
     else if (marker == 'z') {
       addMessage(engine->interface, "You've found the stairs leading deeping into the dungeon");
       flag = readFlag();
-      addMessage(engine->interface, &flag);
+      addMessage(engine->interface, flag);
     }
     break;
     case INTERACTION_TYPE_LOOK:
