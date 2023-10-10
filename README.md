@@ -1,23 +1,14 @@
-# A Raycaster in your terminal
+# ncurses-dungeon
+### A raycast 3d dungeon crawler in your terminal
+![l-FTLuWA](https://github.com/eastebry/ncurses-dungeon/assets/1396340/dd5a8ab9-bf1a-4506-9cf3-2004a21ad3c3)
 
-# TODO
-* Make intro where you set terminal size and pick a move style
-* Refactor so that a game object has the player, map and interface
-* detect width and height of the terminal
-* Levels!
+## About
+This project contains a raycasting engine and three levels of a terminal-based dungeon crawler. This was built for the BsidesSF 2018 CTF.
 
+[Here](https://medium.com/@microaeris/bsidessf-2018-ctf-fd23a265eb42) is a writeup that describes the solution to the first two levels.
 
-# Ideas
-* Text interface that says things
-* Door that only opens when you have your back to it
-* Wall textures
-* Gates that are partially see through
-* Moving doors
-* Sprites
-* Limited field of vision
-* Torches
-
-## Screen tearing
+## Implementation Notes
+#### Screen tearing
 * The refreshing bug goes away when using apple's terminal, instead of iterm
 * Repeated calls to `clear()` causes some glitchy transition scenes
 * Calling `erase()` instead works nicely locally, but leads to some serious screen tearing remotely
