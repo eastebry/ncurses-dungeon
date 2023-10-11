@@ -1,6 +1,6 @@
 # ncurses-dungeon
 ### A raycast 3d dungeon crawler in your terminal
-![l-FTLuWA](https://github.com/eastebry/ncurses-dungeon/assets/1396340/dd5a8ab9-bf1a-4506-9cf3-2004a21ad3c3)
+![dungeon](img/dungeon2.gif)
 
 ## About
 This project contains a raycasting engine and three levels of a terminal-based dungeon crawler. This was built for the BsidesSF 2018 CTF. It was intentionally  written in C in order to include memory corruption challenges.
@@ -147,8 +147,7 @@ The visuals are rendered to the screen based on the characters in the map, which
 
 Here's a video that shows the whole process (edited for brevity), first using the sands of time to walk outside the maze, then walking through the flag. Note the letters `F L A G` on the left wall, as the player skips backwards. They are literally walking through the flag!
 
-https://github.com/eastebry/ncurses-dungeon/assets/1396340/26ae0708-5a31-42fd-8dbc-fe1608073d46
-
+![solution](img/level3_solution.mp4)
 </details>
 
 
