@@ -76,7 +76,7 @@ Level 2 was a combination of a reversing puzzle and programming puzzle. Players 
 
 <details>
     <summary>Solution</summary>
-    Using `strings` on the binary again, players reveal a map of the dungeon with an interesting set of events (remember, letters = events) in the middle:
+    Using strings on the binary again, players reveal a map of the dungeon with an interesting set of events (remember, letters = events) in the middle:
     ```
         **********E*********
         *      XX zXX      *
