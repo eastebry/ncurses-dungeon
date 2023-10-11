@@ -147,7 +147,10 @@ The visuals are rendered to the screen based on the characters in the map, which
 
 Here's a video that shows the whole process (edited for brevity), first using the sands of time to walk outside the maze, then walking through the flag. Note the letters `F L A G` on the left wall, as the player skips backwards. They are literally walking through the flag!
 
-![](https://github.com/eastebry/ncurses-dungeon/raw/master/img/level3_solution.mp4)
+
+
+https://github.com/eastebry/ncurses-dungeon/assets/1396340/4085a6ac-9a55-48a3-bd9c-365bdbb2a4e9
+
 
 </details>
 
