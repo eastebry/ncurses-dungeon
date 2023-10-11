@@ -5,10 +5,12 @@
 ## About
 This project contains a raycasting engine and three levels of a terminal-based dungeon crawler. This was built for the BsidesSF 2018 CTF. It was intentionally  written in C in order to include memory corruption challenges.
 
+I am done with this project for now, but I would love if other CTF challenge authors use the code I have here to create interesting challenges for their CTF's!
+
 ## Writeups
 [Here](https://medium.com/@microaeris/bsidessf-2018-ctf-fd23a265eb42) is a writeup that describes the solution to the first two levels.
 
-## Level 1
+## Level 1 - Find the Hidden Map
 Level 1 was worth a small number of points, and requires using `strings`, plus a light bit of reverse engineering. Users wander around the dungeon until they discover a "Feeble Pickaxe", which can be used to destroy certain walls, but will break if used on an unbreakable wall.
 
 This challenge was solved by multiple teams, although in retrospect it was a bit too difficult for a beginner challenge.
@@ -66,11 +68,13 @@ XzX&&----   - -    X
 *E******************
 ```
 
-Reversing the binary will reveal that the characters `X * - &` are walls, and the letter-characters are events. The seemingly unreachable `E` character is the end of the level. There appears to be no way to reach the `E character`.
+Reversing the binary will reveal that the characters `X * - &` are walls, and the letter-characters are events. The seemingly unreachable `E` character is the end of the level, and reveal the flag. There appears to be no way to reach the `E character`.
 
 Returning to the binary, you will find that there is another very long, non-ascii string that is the exact same length as the map string. Reversing the code paths that lead to the `You swing the pickaxe against the rock. The rock crumbles apart` message, you will see that each character of this longer string is `xored` with each character of the map string and `0x99` to determine if the wall can be broken. This means that you can `xor` each character of the non-ascii string with `0x99` to reveal a hidden map! Wherever there are difference between the first and the second maps, there is a breakable wall.
 
-## Level 2
+</details>
+
+## Level 2 - Find the Right Switch Combination
 Level 2 was a combination of a reversing puzzle and programming puzzle. Players wander around the maze until they discover a "trap" and a set of switches, which must be pressed in a certain combination in order to reveal the exit of the dungeon. Only one team solved this challenge, so in retrospect, it was probably much too difficult.
 
 <details>
@@ -117,9 +121,28 @@ Level 2 was a combination of a reversing puzzle and programming puzzle. Players 
 
     There are an infinite number of solutions, but there is one catch: not all combinations of button presses are possible. Because switches are immediately adjacent moving off one causes the player to press another.
     
-    This essentially boils down to a breadth-first search, starting by pressing a the first button a certain number of times, than using a BFS algorithm to determine if it is possible to press the other switches the correct number of times.
+    This essentially boils down to a breadth-first search, starting by pressing a the first button a certain number of times, than using a BFS algorithm to determine if it is possible to press the other switches the correct number of times. Finding the correct combination reveals a hidden exit, which give player the flag.
 
 </details>
+
+### Level 3 - The Sands of Time
+Level three was what I envisioned when I dreamt up this challenge. It is a memory corruption challenge that requires you to leverage gameplay elements in order to build an exploit. Players wander around the map, avoiding hidden spikes, until they find an item called "the sands of time", an item that allows you to wind back time, and undo previous actions in the maze. (Hint: this item is terribly broken).
+
+Unfortunately no one managed to solve this challenge, so it was clearly much to difficult. I thought the concept of the challenge was very interesting, but clearly it needed to be simplified.
+
+<details>
+    <summary>Solution</summary>
+    A key difference between this challenge and the prevoius challenges is that both the map and the flag are stored on the stack. This is an important detail for later.
+
+    Wandering around the maze (and avoiding the instant-death spikes), the player will find a item called "The Sands of Time". Using this item allows them to undo the previous step they look in the maze.
+
+    After playing around with The Sands of Time (and possibly doing some reverse engineering), the player will discover that it has one serious bug. The game keeps a list of each action the player takes, and unwinds the last action every time The Sands of Time are used. However, it doesn't actually "undo" the last action, instead it just performs the last action in reverse. If the player walks forward, using the Sands of Time will cause them to walk backwards. The game does not do any bounds checks when The Sands of Time are used.
+
+    This means the player can use the Sands of Time to escape the map! If the player repeatedly walks forward against a wall, they will remain stationary (collision checks are performed). At this point, they can use the Sands of Time to "undo" each of these walk-forward actions, causing them to walk backwards until they eventuall walk backwards out of the map.
+
+    The visuals are rendered to the screen based on the characters in the map, which is stored in the stack. When the player walks outside the map, they are literally walking through the stack, seeing whatever else is stored in memory there. Remember: the flag is also stored on the stack, so if the player skips backwards enough, they will be able to read the flag letter by letter.
+</details>
+
 
 ### Build and Run the Challenges
 ```
