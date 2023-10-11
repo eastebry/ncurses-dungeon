@@ -18,7 +18,6 @@ This challenge was solved by multiple teams, although in retrospect it was a bit
 <details>
     <summary>Solution</summary>
     Running `strings` on the binary will reveal multiple text clues, along with one very long string.
-
     ```
     > strings -n30 level1
     ********************X  ab c dd&     *  XX*** **  d&     i  XXee --*  ---ii--*  XXee             *  XX------- XXXX  X*  XX     **pX X    *  XX  &  ** X&&&&&&&  XX  &              -XX  -----&& *****   XX        X     &X  XX---&  * XX&&&j&   X-   &      &       X-------------------XXff    gggXX-**   -XX----------   *   -XX--    &  X-------*XX  &  &&    &    XXXX  &&--&&----------XXzX&&----   - -    X*E******************
@@ -42,35 +41,33 @@ This challenge was solved by multiple teams, although in retrospect it was a bit
     You swing the pickaxe against the rock. The rock crumbles apart
     You swing the pickaxe, and it breaks
     ```
-
-The text clues indicate that you must use the pickaxe to break certain walls. The long string is a map encoded in a single line, which can be split into multple to look like this:
-```
-********************
-X  ab c dd&     *  X
-X*** **  d&     i  X
-Xee --*  ---ii--*  X
-Xee             *  X
-X------- XXXX  X*  X
-X     **pX X    *  X
-X  &  ** X&&&&&&&  X
-X  &              -X
-X  -----&& *****   X
-X        X     &X  X
-X---&  * XX&&&j&   X
--   &      &       X
--------------------X
-Xff    gggXX-**   -X
-X----------   *   -X
-X--    &  X-------*X
-X  &  &&    &    XXX
-X  &&--&&----------X
-XzX&&----   - -    X
-*E******************
-```
-
-Reversing the binary will reveal that the characters `X * - &` are walls, and the letter-characters are events. The seemingly unreachable `E` character is the end of the level, and reveal the flag. There appears to be no way to reach the `E character`.
-
-Returning to the binary, you will find that there is another very long, non-ascii string that is the exact same length as the map string. Reversing the code paths that lead to the `You swing the pickaxe against the rock. The rock crumbles apart` message, you will see that each character of this longer string is `xored` with each character of the map string and `0x99` to determine if the wall can be broken. This means that you can `xor` each character of the non-ascii string with `0x99` to reveal a hidden map! Wherever there are difference between the first and the second maps, there is a breakable wall.
+    The text clues indicate that you must use the pickaxe to break certain walls. The long string is a map encoded in a single line, which can be split into multple to look like this:
+    ```
+        ********************
+        X  ab c dd&     *  X
+        X*** **  d&     i  X
+        Xee --*  ---ii--*  X
+        Xee             *  X
+        X------- XXXX  X*  X
+        X     **pX X    *  X
+        X  &  ** X&&&&&&&  X
+        X  &              -X
+        X  -----&& *****   X
+        X        X     &X  X
+        X---&  * XX&&&j&   X
+        -   &      &       X
+        -------------------X
+        Xff    gggXX-**   -X
+        X----------   *   -X
+        X--    &  X-------*X
+        X  &  &&    &    XXX
+        X  &&--&&----------X
+        XzX&&----   - -    X
+        *E******************
+    ```
+    Reversing the binary will reveal that the characters `X * - &` are walls, and the letter-characters are events. The seemingly unreachable `E` character is the end of the level, and reveal the flag. There appears to be no way to reach the `E character`.
+    
+    Returning to the binary, you will find that there is another very long, non-ascii string that is the exact same length as the map string. Reversing the code paths that lead to the `You swing the pickaxe against the rock. The rock crumbles apart` message, you will see that each character of this longer string is `xored` with each character of the map string and `0x99` to determine if the wall can be broken. This means that you can `xor` each character of the non-ascii string with `0x99` to reveal a hidden map! Wherever there are difference between the first and the second maps, there is a breakable wall.
 
 </details>
 
