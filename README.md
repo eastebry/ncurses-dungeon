@@ -125,8 +125,8 @@ Level 2 was a combination of a reversing puzzle and programming puzzle. Players 
 
 </details>
 
-### Level 3 - The Sands of Time
-Level three was what I envisioned when I dreamt up this challenge. It is a memory corruption challenge that requires you to leverage gameplay elements in order to build an exploit. Players wander around the map, avoiding hidden spikes, until they find an item called "the sands of time", an item that allows you to wind back time, and undo previous actions in the maze. (Hint: this item is terribly broken).
+## Level 3 - The Sands of Time
+Level three was what I envisioned when I dreamt up this challenge. It is a memory corruption challenge that requires you to leverage gameplay elements in order to build an exploit. Players wander around the map, avoiding hidden spikes, until they find an item called "the sands of time", an item that allows you to wind back time and undo previous actions in the maze. (Hint: this item is terribly broken).
 
 Unfortunately no one managed to solve this challenge, so it was clearly much to difficult. I thought the concept of the challenge was very interesting, but clearly it needed to be simplified.
 
@@ -141,6 +141,12 @@ Unfortunately no one managed to solve this challenge, so it was clearly much to 
     This means the player can use the Sands of Time to escape the map! If the player repeatedly walks forward against a wall, they will remain stationary (collision checks are performed). At this point, they can use the Sands of Time to "undo" each of these walk-forward actions, causing them to walk backwards until they eventuall walk backwards out of the map.
 
     The visuals are rendered to the screen based on the characters in the map, which is stored in the stack. When the player walks outside the map, they are literally walking through the stack, seeing whatever else is stored in memory there. Remember: the flag is also stored on the stack, so if the player skips backwards enough, they will be able to read the flag letter by letter.
+
+Here's a video that shows the whole process, first using the sands of time to walk outside the maze, then walking through the flag. Note the letters `F L A G` on the left wall, as the player skips backwards. They are literally walking through the flag!
+
+https://github.com/eastebry/ncurses-dungeon/assets/1396340/7e83378a-86c4-4663-8daf-e231d6b6b3e9
+
+
 </details>
 
 
