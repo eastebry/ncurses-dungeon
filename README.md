@@ -133,19 +133,13 @@ Unfortunately no one managed to solve this challenge, so it was clearly much to 
 <details>
     <summary>Solution</summary>
     A key difference between this challenge and the prevoius challenges is that both the map and the flag are stored on the stack. This is an important detail for later.
-
     Wandering around the maze (and avoiding the instant-death spikes), the player will find a item called "The Sands of Time". Using this item allows them to undo the previous step they look in the maze.
-
     After playing around with The Sands of Time (and possibly doing some reverse engineering), the player will discover that it has one serious bug. The game keeps a list of each action the player takes, and unwinds the last action every time The Sands of Time are used. However, it doesn't actually "undo" the last action, instead it just performs the last action in reverse. If the player walks forward, using the Sands of Time will cause them to walk backwards. The game does not do any bounds checks when The Sands of Time are used.
-
     This means the player can use the Sands of Time to escape the map! If the player repeatedly walks forward against a wall, they will remain stationary (collision checks are performed). At this point, they can use the Sands of Time to "undo" each of these walk-forward actions, causing them to walk backwards until they eventuall walk backwards out of the map.
-
     The visuals are rendered to the screen based on the characters in the map, which is stored in the stack. When the player walks outside the map, they are literally walking through the stack, seeing whatever else is stored in memory there. Remember: the flag is also stored on the stack, so if the player skips backwards enough, they will be able to read the flag letter by letter.
-
 Here's a video that shows the whole process, first using the sands of time to walk outside the maze, then walking through the flag. Note the letters `F L A G` on the left wall, as the player skips backwards. They are literally walking through the flag!
 
-https://github.com/eastebry/ncurses-dungeon/assets/1396340/7e83378a-86c4-4663-8daf-e231d6b6b3e9
-
+https://github.com/eastebry/ncurses-dungeon/assets/1396340/26ae0708-5a31-42fd-8dbc-fe1608073d46
 
 </details>
 
