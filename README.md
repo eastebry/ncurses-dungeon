@@ -3,7 +3,7 @@
 ![l-FTLuWA](https://github.com/eastebry/ncurses-dungeon/assets/1396340/dd5a8ab9-bf1a-4506-9cf3-2004a21ad3c3)
 
 ## About
-This project contains a raycasting engine and three levels of a terminal-based dungeon crawler. This was built for the BsidesSF 2018 CTF. It was intentionally  written in C in order to include challenges memory corruption challenges.
+This project contains a raycasting engine and three levels of a terminal-based dungeon crawler. This was built for the BsidesSF 2018 CTF. It was intentionally  written in C in order to include memory corruption challenges.
 
 ## Writeups
 [Here](https://medium.com/@microaeris/bsidessf-2018-ctf-fd23a265eb42) is a writeup that describes the solution to the first two levels.
@@ -15,7 +15,7 @@ This challenge was solved by multiple teams, although in retrospect it was a bit
 
 <details>
     <summary>Solution</summary>
-    Running `strings` on the binary will reveal multiple text clues, along with one veyr long string.
+    Running `strings` on the binary will reveal multiple text clues, along with one very long string.
 
     ```
     > strings -n30 level1
@@ -77,41 +77,41 @@ Level 2 was a combination of a reversing puzzle and programming puzzle. Players 
     <summary>Solution</summary>
     Using `strings` on the binary again, players reveal a map of the dungeon with an interesting set of events (remember, letters = events) in the middle:
     ```
-    "**********E*********"\
-    "*      XX zXX      *"\
-    "*       XXXX       *"\
-    "* ----   rr    ----*"\
-    "*       &   &      *"\
-    "** s******m******  *"\
-    "*    ---ssass-X    *"\
-    "*    --XsbcdsXX    *"\
-    "*    ---sefgs-X    *"\
-    "*    --XshijsXX    *"\
-    "*ssss---sssss-X    *"\
-    "* *******X*X*X**** *"\
-    "* ----   *   ----- *"\
-    "*      --*--       *"\
-    "* ----   *   ----- *"\
-    "* X&X&   *   X&X&X *"\
-    "*      X&*&X       *"\
-    "*&X&X&       X&X&X&*"\
-    "*&&&&&&&&&&&&&&&&&&&";
+        **********E*********
+        *      XX zXX      *
+        *       XXXX       *
+        * ----   rr    ----*
+        *       &   &      *
+        ** s******m******  *
+        *    ---ssass-X    *
+        *    --XsbcdsXX    *
+        *    ---sefgs-X    *
+        *    --XshijsXX    *
+        *ssss---sssss-X    *
+        * *******X*X*X**** *
+        * ----   *   ----- *
+        *      --*--       *
+        * ----   *   ----- *
+        * X&X&   *   X&X&X *
+        *      X&*&X       *
+        *&X&X&       X&X&X&*
+        *&&&&&&&&&&&&&&&&&&&
     ```
     Reversing futher (very useful to use use a decompiler here), reveals that these events represents switches on the floor that must be pushed in a combination that satisfies this function:
     ```
-    bool unlock() {
-        unsigned char w = switches[0];
-        if (w == 0)
-        return false;
-        for (int i=1; i < sizeof(switches); i+=1){
-            w ^= (w << 5);
-            w ^= (w >> 3);
-            w ^= (w << 7);
-            if (switches[i] != w % 9)
+        bool unlock() {
+            unsigned char w = switches[0];
+            if (w == 0)
             return false;
-        }
-        return true;
-        }
+            for (int i=1; i < sizeof(switches); i+=1){
+                w ^= (w << 5);
+                w ^= (w >> 3);
+                w ^= (w << 7);
+                if (switches[i] != w % 9)
+                return false;
+            }
+            return true;
+            }
     ```
     Essentially, the first switch (`switches[0]`) is a seed, that requires each of the other switches to be pressed a certain number of times.
 
@@ -121,9 +121,12 @@ Level 2 was a combination of a reversing puzzle and programming puzzle. Players 
 
 </details>
 
-### Build the challenges
-```make
+### Build and Run the Challenges
+```
+make
 ./level1
+./level2
+./level3
 ```
 
 ### Implementation Notes
