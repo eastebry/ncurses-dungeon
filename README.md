@@ -5,8 +5,13 @@
 ## About
 This project contains a raycasting engine and three levels of a terminal-based dungeon crawler. This was built for the BsidesSF 2018 CTF. It was intentionally  written in C in order to include challenges memory corruption challenges.
 
-### Level 1
+## Writeups
+[Here](https://medium.com/@microaeris/bsidessf-2018-ctf-fd23a265eb42) is a writeup that describes the solution to the first two levels.
+
+## Level 1
 Level 1 was worth a small number of points, and requires using `strings`, plus a light bit of reverse engineering. Users wander around the dungeon until they discover a "Feeble Pickaxe", which can be used to destroy certain walls, but will break if used on an unbreakable wall.
+
+This challenge was solved by multiple teams, although in retrospect it was a bit too difficult for a beginner challenge.
 
 <details>
     <summary>Solution</summary>
@@ -15,25 +20,25 @@ Level 1 was worth a small number of points, and requires using `strings`, plus a
     ```
     > strings -n30 level1
     ********************X  ab c dd&     *  XX*** **  d&     i  XXee --*  ---ii--*  XXee             *  XX------- XXXX  X*  XX     **pX X    *  XX  &  ** X&&&&&&&  XX  &              -XX  -----&& *****   XX        X     &X  XX---&  * XX&&&j&   X-   &      &       X-------------------XXff    gggXX-**   -XX----------   *   -XX--    &  X-------*XX  &  &&    &    XXXX  &&--&&----------XXzX&&----   - -    X*E******************
-Immediately after entering, you hear a thunderous boom
-The wall ceiling behind you collapse into a pile of rubble
-You barely avoid the falling rock, but you are now trapped
-The air here is thick and damp.
-You feel a light breeze. This dungeon is large and cavernous.
-There is a skeleton lying on the ground. It has clearly been here for while.
-The bones of its fingers are curled around a piece of parchment.
-...
-The note reads: I've been trapped in this maze for weeks.
-This dungeon is a labyrenth. I've expored every passageway ten times,
-but still can't find where I entered. I wish I had a map.
-The note reads: I ran into a another group of explorers today.
-They told me that some of the stone walls are more brittle than others
-and could be broken. No help to me. I can't tell any of these apart.
-You examine the walls for cracks, but find nothing. This rock seems solid
-...
-You swing the pickaxe. It strikes nothing.
-You swing the pickaxe against the rock. The rock crumbles apart
-You swing the pickaxe, and it breaks
+    Immediately after entering, you hear a thunderous boom
+    The wall ceiling behind you collapse into a pile of rubble
+    You barely avoid the falling rock, but you are now trapped
+    The air here is thick and damp.
+    You feel a light breeze. This dungeon is large and cavernous.
+    There is a skeleton lying on the ground. It has clearly been here for while.
+    The bones of its fingers are curled around a piece of parchment.
+    ...
+    The note reads: I've been trapped in this maze for weeks.
+    This dungeon is a labyrenth. I've expored every passageway ten times,
+    but still can't find where I entered. I wish I had a map.
+    The note reads: I ran into a another group of explorers today.
+    They told me that some of the stone walls are more brittle than others
+    and could be broken. No help to me. I can't tell any of these apart.
+    You examine the walls for cracks, but find nothing. This rock seems solid
+    ...
+    You swing the pickaxe. It strikes nothing.
+    You swing the pickaxe against the rock. The rock crumbles apart
+    You swing the pickaxe, and it breaks
     ```
 
 The text clues indicate that you must use the pickaxe to break certain walls. The long string is a map encoded in a single line, which can be split into multple to look like this:
@@ -63,9 +68,58 @@ XzX&&----   - -    X
 
 Reversing the binary will reveal that the characters `X * - &` are walls, and the letter-characters are events. The seemingly unreachable `E` character is the end of the level. There appears to be no way to reach the `E character`.
 
-Returning to the binary, you will find that there is another very long, non-ascii string that is the exact same length as the map string. Reversing the code paths that lead to the `You swing the pickaxe against the rock. The rock crumbles apart` message, you will see that each character of this string is `xored` with each character of the map string and `0x99` to determine if the wall can be broken. This means that you can `xor` each character of the non-ascii string with `0x99` to reveal a hidden map! Wherever there are difference between the first and the second maps, there is a breakable wall.
+Returning to the binary, you will find that there is another very long, non-ascii string that is the exact same length as the map string. Reversing the code paths that lead to the `You swing the pickaxe against the rock. The rock crumbles apart` message, you will see that each character of this longer string is `xored` with each character of the map string and `0x99` to determine if the wall can be broken. This means that you can `xor` each character of the non-ascii string with `0x99` to reveal a hidden map! Wherever there are difference between the first and the second maps, there is a breakable wall.
 
-[Here](https://medium.com/@microaeris/bsidessf-2018-ctf-fd23a265eb42) is a writeup that describes the solution to the first two levels.
+## Level 2
+Level 2 was a combination of a reversing puzzle and programming puzzle. Players wander around the maze until they discover a "trap" and a set of switches, which must be pressed in a certain combination in order to reveal the exit of the dungeon. Only one team solved this challenge, so in retrospect, it was probably much too difficult.
+
+<details>
+    <summary>Solution</summary>
+    Using `strings` on the binary again, players reveal a map of the dungeon with an interesting set of events (remember, letters = events) in the middle:
+    ```
+    "**********E*********"\
+    "*      XX zXX      *"\
+    "*       XXXX       *"\
+    "* ----   rr    ----*"\
+    "*       &   &      *"\
+    "** s******m******  *"\
+    "*    ---ssass-X    *"\
+    "*    --XsbcdsXX    *"\
+    "*    ---sefgs-X    *"\
+    "*    --XshijsXX    *"\
+    "*ssss---sssss-X    *"\
+    "* *******X*X*X**** *"\
+    "* ----   *   ----- *"\
+    "*      --*--       *"\
+    "* ----   *   ----- *"\
+    "* X&X&   *   X&X&X *"\
+    "*      X&*&X       *"\
+    "*&X&X&       X&X&X&*"\
+    "*&&&&&&&&&&&&&&&&&&&";
+    ```
+    Reversing futher (very useful to use use a decompiler here), reveals that these events represents switches on the floor that must be pushed in a combination that satisfies this function:
+    ```
+    bool unlock() {
+        unsigned char w = switches[0];
+        if (w == 0)
+        return false;
+        for (int i=1; i < sizeof(switches); i+=1){
+            w ^= (w << 5);
+            w ^= (w >> 3);
+            w ^= (w << 7);
+            if (switches[i] != w % 9)
+            return false;
+        }
+        return true;
+        }
+    ```
+    Essentially, the first switch (`switches[0]`) is a seed, that requires each of the other switches to be pressed a certain number of times.
+
+    There are an infinite number of solutions, but there is one catch: not all combinations of button presses are possible. Because switches are immediately adjacent moving off one causes the player to press another.
+    
+    This essentially boils down to a breadth-first search, starting by pressing a the first button a certain number of times, than using a BFS algorithm to determine if it is possible to press the other switches the correct number of times.
+
+</details>
 
 ### Build the challenges
 ```make
