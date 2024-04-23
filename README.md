@@ -130,7 +130,7 @@ This essentially boils down to a breadth-first search, starting by pressing a th
 ## Level 3 - The Sands of Time
 Level three was what I envisioned when I dreamt up this challenge. It is a memory corruption challenge that requires you to leverage gameplay elements in order to build an exploit. Players wander around the map, avoiding hidden spikes, until they find an item called "the sands of time", an item that allows you to wind back time and undo previous actions in the maze. (Hint: this item is terribly broken).
 
-Unfortunately no one managed to solve this challenge, so it was clearly much to difficult. I thought the concept of the challenge was very interesting, but clearly it needed to be simplified.
+Unfortunately no one managed to solve this challenge, so it was clearly much too difficult. I thought the concept of the challenge was very interesting, but clearly it needed to be simplified.
 
 <details>
     <summary>Solution</summary>
